@@ -1,0 +1,40 @@
+{
+	"name": "from-schema",
+	"version": "0.0.0",
+	"description": "Infer TypeScript types from JSON schemas",
+	"main": "dist/src/index.js",
+	"type": "commonjs",
+	"types": "dist/src/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "tsc --listen",
+		"format": "prettier -w . && eslint --fix",
+		"lint": "prettier -c . && eslint",
+		"clean": "rm -rf dist build tmp node_modules",
+		"build-anew": "npm run clean && npm i && npm run build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/airgap/from-schema.git"
+	},
+	"keywords": [
+		"jsonschema"
+	],
+	"author": "airgap",
+	"license": "GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/airgap/from-schema/issues"
+	},
+	"homepage": "https://github.com/airgap/from-schema#readme",
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "5.62.0",
+		"@typescript-eslint/parser": "5.62.0",
+		"eslint": "8.46.0",
+		"eslint-config-prettier": "8.1.0",
+		"prettier": "^2.8.8"
+	},
+	"peerDependencies": {
+		"typescript": "^5.1.6"
+	}
+}
