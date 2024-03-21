@@ -12,13 +12,13 @@ import { NoSchema } from './NoSchema';
 export type FromSchema<T> = T extends StringSchema
 	? string
 	: T extends NumberSchema
-	? number
-	: T extends BooleanSchema
-	? boolean
-	: T extends EnumSchemaOf<infer P extends SchemaOrPrimitive>
-	? PrimitiveOrFromSchema<P>
-	: T extends ObjectSchema
-	? FromObjectSchema<T>
-	: T extends ArraySchema
-	? FromSchema<T['items']>[]
-	: NoSchema;
+		? number
+		: T extends BooleanSchema
+			? boolean
+			: T extends EnumSchemaOf<infer P extends SchemaOrPrimitive>
+				? PrimitiveOrFromSchema<P>
+				: T extends ObjectSchema
+					? FromObjectSchema<T>
+					: T extends ArraySchema
+						? FromSchema<T['items']>[]
+						: NoSchema;
