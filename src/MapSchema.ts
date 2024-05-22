@@ -3,7 +3,7 @@ import { Schema } from './Schema';
 import { StringSchema } from './StringSchema';
 
 export type MapSchema = {
-	type: 'map';
-	keys: StringSchema | EnumSchema;
-	values: Schema;
+	readonly type: 'map';
+	readonly keys: string | StringSchema | EnumSchema;
+	readonly values: Schema;
 };

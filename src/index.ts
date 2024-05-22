@@ -6,6 +6,7 @@ export * from './UnionSchemaOf';
 export * from './FromObjectSchema';
 export * from './FromPropertySchemas';
 export * from './FromSchema';
+export * from './MapSchema';
 export * from './NoSchema';
 export * from './NumberSchema';
 export * from './ObjectSchema';
