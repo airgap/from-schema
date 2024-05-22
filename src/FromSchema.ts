@@ -3,7 +3,7 @@ import { NumberSchema } from './NumberSchema';
 import { ObjectSchema } from './ObjectSchema';
 import { StringSchema } from './StringSchema';
 import { SchemaOrPrimitive } from './SchemaOrPrimitive';
-import { EnumSchemaOf } from './EnumSchemaOf';
+import { UnionSchemaOf } from './UnionSchemaOf';
 import { PrimitiveOrFromSchema } from './PrimitiveOrFromSchema';
 import { FromObjectSchema } from './FromObjectSchema';
 import { ArraySchema } from './ArraySchema';
@@ -15,7 +15,7 @@ export type FromSchema<T> = T extends StringSchema
 		? number
 		: T extends BooleanSchema
 			? boolean
-			: T extends EnumSchemaOf<infer P extends SchemaOrPrimitive>
+			: T extends UnionSchemaOf<infer P extends SchemaOrPrimitive>
 				? PrimitiveOrFromSchema<P>
 				: T extends ObjectSchema
 					? FromObjectSchema<T>

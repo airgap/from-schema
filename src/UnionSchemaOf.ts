@@ -1,5 +1,5 @@
 import { SchemaBase } from './SchemaBase';
 
-export type EnumSchemaOf<K> = SchemaBase & {
+export type UnionSchemaOf<K> = SchemaBase & {
 	readonly enum: readonly K[];
 };
