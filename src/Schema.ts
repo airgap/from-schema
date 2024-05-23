@@ -4,6 +4,8 @@ import { ObjectSchema } from './ObjectSchema';
 import { StringSchema } from './StringSchema';
 import { BooleanSchema } from './BooleanSchema';
 import { NumberSchema } from './NumberSchema';
+import { UnionSchema } from './UnionSchema';
+import { MapSchema } from './MapSchema';
 
 export type Schema =
 	| ObjectSchema
@@ -11,4 +13,6 @@ export type Schema =
 	| NumberSchema
 	| StringSchema
 	| BooleanSchema
-	| EnumSchema;
+	| EnumSchema
+	| UnionSchema
+	| MapSchema;

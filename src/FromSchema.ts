@@ -8,6 +8,8 @@ import { PrimitiveOrFromSchema } from './PrimitiveOrFromSchema';
 import { FromObjectSchema } from './FromObjectSchema';
 import { ArraySchema } from './ArraySchema';
 import { NoSchema } from './NoSchema';
+import { EnumSchemaOf } from './EnumSchemaOf';
+import { FromMapSchema, MapSchema, MapSchemaOf } from './MapSchema';
 
 export type FromSchema<T> = T extends StringSchema
 	? string
@@ -17,8 +19,12 @@ export type FromSchema<T> = T extends StringSchema
 			? boolean
 			: T extends UnionSchemaOf<infer P extends SchemaOrPrimitive>
 				? PrimitiveOrFromSchema<P>
-				: T extends ObjectSchema
-					? FromObjectSchema<T>
-					: T extends ArraySchema
-						? FromSchema<T['items']>[]
-						: NoSchema;
+				: T extends EnumSchemaOf<infer P extends SchemaOrPrimitive>
+					? PrimitiveOrFromSchema<P>
+					: T extends ObjectSchema
+						? FromObjectSchema<T>
+						: T extends MapSchema
+							? FromMapSchema<T>
+							: T extends ArraySchema
+								? FromSchema<T['items']>[]
+								: NoSchema;
