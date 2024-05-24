@@ -38,11 +38,19 @@ export const bodyType = {
 	enum: ['plaintext', 'markdown'],
 } as const satisfies EnumSchema;
 
+// Export a type inferred from bodyType
+export type BodyType = FromSchema<typeof bodyType>
+/** Equivalent:
+ *  type BodyType = 'plaintext' | 'markdown'
+ * */
+
 // Define an array of attachments (defined elsewhere)
 export const attachments = {
 	type: 'array',
 	items: attachment,
 } as const satisfies ArraySchema;
+
+// Infer a type based on that model
 export type Attachments = FromSchema<typeof attachments>;
 /* Equivalent:
  *  type Attachments = {<external definition>}[];
