@@ -8,11 +8,11 @@ import { UnionSchema } from './UnionSchema';
 import { MapSchema } from './MapSchema';
 
 export type Schema =
-	| ObjectSchema
 	| ArraySchema
-	| NumberSchema
-	| StringSchema
 	| BooleanSchema
 	| EnumSchema
-	| UnionSchema
-	| MapSchema;
+	| MapSchema
+	| NumberSchema
+	| ObjectSchema
+	| StringSchema
+	| UnionSchema;
