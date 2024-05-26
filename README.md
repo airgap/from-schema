@@ -8,8 +8,8 @@
 - This library is very opinionated
 - Probably don't use this in production
 
-
 ### Example - social media post
+
 ```tsx
 // Import various from-schema types
 import { ArraySchema, EnumSchema, FromSchema, ObjectSchema } from 'from-schema';
@@ -39,7 +39,7 @@ export const bodyType = {
 } as const satisfies EnumSchema;
 
 // Export a type inferred from bodyType
-export type BodyType = FromSchema<typeof bodyType>
+export type BodyType = FromSchema<typeof bodyType>;
 /** Equivalent:
  *  type BodyType = 'plaintext' | 'markdown'
  * */
@@ -62,20 +62,20 @@ export const post = {
 	type: 'object',
 	properties: {
 		id: uuid, // You can embed schemas in other schemas
-		body: postBody,// Maybe this is a string with specific constraints?
+		body: postBody, // Maybe this is a string with specific constraints?
 		bodyType,
 		groupId: uuid,
 		attachments,
 		authorId: user.properties.id, // You can model document relationships
 		likes: {
-            type: 'number'
-        },
+			type: 'number',
+		},
 		publishDate: {
-            type: 'string'
-        },
+			type: 'string',
+		},
 		replies: {
-            type: 'number'
-        },
+			type: 'number',
+		},
 		title: postTitle, // Another string with constraints defined elsewhere
 		thread: {
 			type: 'array',
