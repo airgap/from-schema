@@ -1,5 +1,6 @@
 import { SchemaBase } from './SchemaBase';
+import { EnumMember } from './EnumSchema';
 
-export type EnumSchemaOf<K> = SchemaBase & {
-	readonly enum: readonly K[];
+export type EnumSchemaOf<M extends EnumMember> = SchemaBase & {
+	readonly enum: readonly M[];
 };

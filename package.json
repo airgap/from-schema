@@ -2,13 +2,13 @@
 	"name": "from-schema",
 	"version": "0.0.7",
 	"description": "Infer TypeScript types from JSON schemas",
-	"main": "dist/src/index.js",
-	"type": "commonjs",
-	"types": "dist/src/index.d.ts",
+	"main": "dist/index.js",
+	"type": "module",
+	"types": "dist/index.d.ts",
 	"scripts": {
-		"build": "tsc",
+		"build": "vite build",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "tsc --listen",
+		"dev": "vite",
 		"format": "prettier -w . && eslint --fix",
 		"lint": "prettier -c . && eslint",
 		"clean": "rm -rf dist build tmp node_modules",
@@ -32,7 +32,9 @@
 		"@typescript-eslint/parser": "5.62.0",
 		"eslint": "8.46.0",
 		"eslint-config-prettier": "8.1.0",
-		"prettier": "^4.0.0-alpha.8"
+		"prettier": "^4.0.0-alpha.8",
+		"vite-plugin-dts": "^3.9.1",
+		"vitest": "^1.6.0"
 	},
 	"peerDependencies": {
 		"typescript": "^5.1.6"

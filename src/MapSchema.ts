@@ -1,7 +1,5 @@
-import { EnumSchema } from './EnumSchema';
 import { EnumSchemaOf } from './EnumSchemaOf';
 import { FromSchema } from './FromSchema';
-import { NumberSchema } from './NumberSchema';
 import { Schema } from './Schema';
 import { SchemaBase } from './SchemaBase';
 import { StringSchema } from './StringSchema';

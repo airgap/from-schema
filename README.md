@@ -310,16 +310,6 @@ export type FromMapSchema<S extends MapSchema> = S['partial'] extends true
 
 A utility type that constructs a map type from a `MapSchema`. It maps the key and value schemas to their corresponding TypeScript types, considering the `partial` property.
 
-### NoSchema
-
-Defined in `NoSchema.ts`.
-
-```typescript
-export type NoSchema = never;
-```
-
-Represents a schema that matches no value. It is equivalent to the `never` type.
-
 ### NumberSchema
 
 Defined in `NumberSchema.ts`.

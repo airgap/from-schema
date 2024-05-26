@@ -1,13 +1,12 @@
 {
 	"compilerOptions": {
 		"lib": ["ESNext"],
+		"declaration": true,
 		"sourceMap": true,
-		"module": "commonjs",
+		"module": "esnext",
 		"target": "esnext",
 		"outDir": "dist",
-		"sourceRoot": "src",
 		"moduleResolution": "node",
-		"composite": true,
 		"strict": true,
 		"downlevelIteration": true,
 		"skipLibCheck": true,

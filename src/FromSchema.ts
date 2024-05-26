@@ -2,12 +2,10 @@ import { BooleanSchema } from './BooleanSchema';
 import { NumberSchema } from './NumberSchema';
 import { ObjectSchema } from './ObjectSchema';
 import { StringSchema } from './StringSchema';
-import { SchemaOrPrimitive } from './SchemaOrPrimitive';
 import { UnionSchemaOf } from './UnionSchemaOf';
 import { PrimitiveOrFromSchema } from './PrimitiveOrFromSchema';
 import { FromObjectSchema } from './FromObjectSchema';
 import { ArraySchema } from './ArraySchema';
-import { NoSchema } from './NoSchema';
 import { EnumSchemaOf } from './EnumSchemaOf';
 import { FromMapSchema, MapSchema, MapSchemaOf } from './MapSchema';
 
@@ -17,9 +15,9 @@ export type FromSchema<T> = T extends StringSchema
 		? number
 		: T extends BooleanSchema
 			? boolean
-			: T extends UnionSchemaOf<infer P extends SchemaOrPrimitive>
+			: T extends UnionSchemaOf<infer P>
 				? PrimitiveOrFromSchema<P>
-				: T extends EnumSchemaOf<infer P extends SchemaOrPrimitive>
+				: T extends EnumSchemaOf<infer P>
 					? PrimitiveOrFromSchema<P>
 					: T extends ObjectSchema
 						? FromObjectSchema<T>
@@ -27,4 +25,4 @@ export type FromSchema<T> = T extends StringSchema
 							? FromMapSchema<T>
 							: T extends ArraySchema
 								? FromSchema<T['items']>[]
-								: NoSchema;
+								: never;
