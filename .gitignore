@@ -170,4 +170,5 @@ dist
 
 from-schema-*.tgz
 
-# ;)
+.idea
+.vscode
