@@ -7,4 +7,6 @@ export type StringSchema = SchemaBase & {
 	// Regular expression, e.g. "^[A-Z][a-z]{1,9}$"
 	readonly pattern?: string;
 	readonly format?: string;
+	readonly default?: string;
+	readonly examples?: string[];
 };

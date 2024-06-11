@@ -8,6 +8,8 @@ export type MapSchema = {
 	readonly keys: StringSchema | EnumSchemaOf<string>;
 	readonly values: Schema;
 	readonly partial?: boolean;
+	readonly default?: Record<string, unknown>;
+	readonly examples?: Record<string, unknown>[];
 };
 export type MapSchemaOf<
 	K extends StringSchema | EnumSchemaOf<string>,

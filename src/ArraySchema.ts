@@ -6,4 +6,6 @@ export type ArraySchema = SchemaBase & {
 	readonly items: SchemaOrPrimitive;
 	readonly maxLength?: number;
 	readonly minLength?: number;
+	readonly default?: unknown[];
+	readonly examples?: unknown[][];
 };

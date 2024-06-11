@@ -5,6 +5,8 @@ export type ObjectSchemaWithoutRequired = SchemaBase & {
 	readonly properties: Record<string, SchemaOrPrimitive>;
 	readonly minProperties?: number;
 	readonly maxProperties?: number;
+	readonly default?: Record<string, unknown>;
+	readonly examples?: Record<string, unknown>[];
 };
 export type ObjectSchemaWithRequired = ObjectSchemaWithoutRequired & {
 	readonly required: readonly string[];
