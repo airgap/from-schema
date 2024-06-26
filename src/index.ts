@@ -2,7 +2,6 @@ export * from './ArraySchema';
 export * from './BooleanSchema';
 export * from './EnumSchema';
 export * from './UnionSchema';
-export * from './UnionSchemaOf';
 export * from './FromObjectSchema';
 export * from './FromPropertySchemas';
 export * from './FromSchema';

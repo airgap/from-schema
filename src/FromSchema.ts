@@ -2,12 +2,12 @@ import { BooleanSchema } from './BooleanSchema';
 import { NumberSchema } from './NumberSchema';
 import { ObjectSchema } from './ObjectSchema';
 import { StringSchema } from './StringSchema';
-import { UnionSchemaOf } from './UnionSchemaOf';
 import { PrimitiveOrFromSchema } from './PrimitiveOrFromSchema';
 import { FromObjectSchema } from './FromObjectSchema';
 import { ArraySchema } from './ArraySchema';
 import { EnumSchemaOf } from './EnumSchemaOf';
 import { FromMapSchema, MapSchema, MapSchemaOf } from './MapSchema';
+import { UnionSchemaOf } from './UnionSchema';
 
 export type FromSchema<T> = T extends StringSchema
 	? string
