@@ -8,8 +8,9 @@ import { ArraySchema } from './ArraySchema';
 import { EnumSchemaOf } from './EnumSchemaOf';
 import { FromMapSchema, MapSchema, MapSchemaOf } from './MapSchema';
 import { UnionSchemaOf } from './UnionSchema';
+import { DateSchema } from './DateSchema';
 
-export type FromSchema<T> = T extends StringSchema
+export type FromSchema<T> = T extends DateSchema | StringSchema
 	? string
 	: T extends NumberSchema
 		? number

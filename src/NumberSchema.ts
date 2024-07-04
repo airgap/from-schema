@@ -1,9 +1,15 @@
 import { SchemaBase } from './SchemaBase';
-
-export type NumberSchema = SchemaBase & {
+type JsonStringBase = {
 	readonly type: 'number' | 'integer';
-	readonly minimum?: number;
-	readonly maximum?: number;
-	readonly default?: number;
-	readonly examples?: number[];
 };
+type BsonStringBase = {
+	readonly bsonType: 'int' | 'double';
+};
+
+export type NumberSchema = SchemaBase &
+	(JsonStringBase | BsonStringBase) & {
+		readonly minimum?: number;
+		readonly maximum?: number;
+		readonly default?: number;
+		readonly examples?: number[];
+	};

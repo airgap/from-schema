@@ -6,6 +6,6 @@ export type TableModel<S extends ObjectSchema> = {
 	readonly indexes?: readonly (
 		| keyof S['properties']
 		| { bond: readonly (keyof S['properties'])[] }
-		)[];
+	)[];
 	readonly docs?: readonly FromObjectSchema<S>[];
 };
