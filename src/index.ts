@@ -9,6 +9,7 @@ export * from './FromSchema';
 export * from './HandlerModel';
 export * from './MapSchema';
 export * from './NumberSchema';
+export * from './ObjectIdSchema';
 export * from './ObjectSchema';
 export * from './OnlyOptional';
 export * from './OnlyRequired';
