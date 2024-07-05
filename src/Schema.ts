@@ -6,6 +6,7 @@ import { BooleanSchema } from './BooleanSchema';
 import { NumberSchema } from './NumberSchema';
 import { UnionSchema } from './UnionSchema';
 import { MapSchema } from './MapSchema';
+import { ObjectIdSchema } from './ObjectIdSchema';
 
 export type Schema =
 	| ArraySchema
@@ -13,6 +14,7 @@ export type Schema =
 	| EnumSchema
 	| MapSchema
 	| NumberSchema
+	| ObjectIdSchema
 	| ObjectSchema
 	| StringSchema
 	| UnionSchema;
