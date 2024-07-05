@@ -1,8 +1,8 @@
 export * from './ArraySchema';
 export * from './BooleanSchema';
 export * from './DatabaseModel';
+export * from './DateSchema';
 export * from './EnumSchema';
-export * from './UnionSchema';
 export * from './FromObjectSchema';
 export * from './FromPropertySchemas';
 export * from './FromSchema';
@@ -21,4 +21,5 @@ export * from './SchemaBase';
 export * from './SchemaOrPrimitive';
 export * from './StringSchema';
 export * from './TableModel';
+export * from './UnionSchema';
 export * from './WebSocketRoute';

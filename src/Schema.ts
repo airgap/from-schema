@@ -7,11 +7,13 @@ import { NumberSchema } from './NumberSchema';
 import { UnionSchema } from './UnionSchema';
 import { MapSchema } from './MapSchema';
 import { ObjectIdSchema } from './ObjectIdSchema';
+import { DateSchema } from './DateSchema';
 
 export type Schema =
 	| ArraySchema
 	| BooleanSchema
 	| EnumSchema
+	| DateSchema
 	| MapSchema
 	| NumberSchema
 	| ObjectIdSchema
