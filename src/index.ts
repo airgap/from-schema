@@ -23,3 +23,4 @@ export * from './StringSchema';
 export * from './TableModel';
 export * from './UnionSchema';
 export * from './WebSocketRoute';
+export * from './primitives';
