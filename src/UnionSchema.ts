@@ -7,6 +7,7 @@ import { NumberSchema } from './NumberSchema';
 import { ObjectSchema } from './ObjectSchema';
 import { StringSchema } from './StringSchema';
 import { Primitive } from './Primitive';
+import { ObjectIdSchema } from './ObjectIdSchema';
 
 type Unionable =
 	| ArraySchema
@@ -15,6 +16,7 @@ type Unionable =
 	| MapSchema
 	| NumberSchema
 	| ObjectSchema
+	| ObjectIdSchema
 	| StringSchema
 	| Primitive;
 export type UnionSchema = SchemaBase & {
