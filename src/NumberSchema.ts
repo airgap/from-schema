@@ -1,9 +1,9 @@
 import { SchemaBase } from './SchemaBase';
 type JsonStringBase = {
-	readonly type: 'number' | 'integer';
+	readonly type: 'integer' | 'number';
 };
 type BsonStringBase = {
-	readonly bsonType: 'int' | 'double';
+	readonly bsonType: 'decimal' | 'double' | 'int' | 'long';
 };
 
 export type NumberSchema = SchemaBase &
