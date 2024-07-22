@@ -1,6 +1,6 @@
 {
 	"name": "from-schema",
-	"version": "0.0.22",
+	"version": "0.0.23",
 	"description": "Infer TypeScript types from JSON schemas",
 	"main": "dist/index.js",
 	"type": "module",
@@ -40,5 +40,8 @@
 	},
 	"peerDependencies": {
 		"typescript": "^5.1.6"
+	},
+	"optionalDependencies": {
+		"mongodb": "^6.8.0"
 	}
 }
