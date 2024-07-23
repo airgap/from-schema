@@ -13,7 +13,8 @@
 		"jsx": "preserve",
 		"allowSyntheticDefaultImports": false,
 		"forceConsistentCasingInFileNames": true,
-		"allowJs": false
+		"allowJs": false,
+		"importsNotUsedAsValues": "remove"
 	},
 	"include": ["src/**/*"]
 }
