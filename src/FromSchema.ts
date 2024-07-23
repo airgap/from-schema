@@ -10,7 +10,7 @@ import { FromMapSchema, MapSchema, MapSchemaOf } from './MapSchema';
 import { UnionSchemaOf } from './UnionSchema';
 import { DateSchema } from './DateSchema';
 import { ObjectIdSchema } from './ObjectIdSchema';
-import { ObjectId } from 'mongodb';
+import type { ObjectId } from 'mongodb';
 
 export type FromSchema<T> = T extends DateSchema
 	? Date | string
