@@ -25,3 +25,4 @@ export * from './UuidV5BsonSchema';
 export * from './UidBsonSchema';
 export * from './EmailBsonSchema';
 export * from './MapBsonSchema';
+export * as bsonPrimitives from './primitives';

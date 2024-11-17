@@ -21,3 +21,4 @@ export * from './WholeNumberSchema';
 export * from './NumberJsonSchema';
 export * from './ObjectIdJsonSchema';
 export * from './UidJsonSchema';
+export * as jsonPrimitives from './primitives';
