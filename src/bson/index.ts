@@ -23,3 +23,5 @@ export * from './NumberBsonSchema';
 export * from './UuidV4BsonSchema';
 export * from './UuidV5BsonSchema';
 export * from './UidBsonSchema';
+export * from './EmailBsonSchema';
+export * from './MapBsonSchema';

@@ -1,9 +1,9 @@
-import { JsonSchema } from './json';
+import { JsonSchemaOrPrimitive } from './json';
 
 // export type HandlerModel = HandlerModelBase & (AuthenticatedHandlerModel | AnonymouseHandlerModel) & (StreamHandlerModel | HttpHandlerModel)
 export type HandlerModel = Readonly<{
-	request?: JsonSchema;
-	response?: JsonSchema;
+	request?: JsonSchemaOrPrimitive;
+	response?: JsonSchemaOrPrimitive;
 	authenticated?: boolean;
 	stream?: boolean;
 }>;
