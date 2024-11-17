@@ -1,8 +1,8 @@
-import { ObjectSchema } from './ObjectSchema';
-import { SchemaBase } from './SchemaBase';
+import { ObjectJsonSchema } from './json';
+import { SchemaBase } from './generic/SchemaBase';
 
 export type HttpRoute = SchemaBase & {
-	readonly request: ObjectSchema;
-	readonly response: ObjectSchema;
+	readonly request: ObjectJsonSchema;
+	readonly response: ObjectJsonSchema;
 	readonly authenticated: boolean;
 };

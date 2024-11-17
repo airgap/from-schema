@@ -1,11 +1,10 @@
-import { FromObjectSchema } from './FromObjectSchema';
-import { ObjectSchema } from './ObjectSchema';
+import { ObjectBsonSchema, FromObjectBsonSchema } from './bson';
 
-export type TableModel<S extends ObjectSchema> = {
+export type TableModel<S extends ObjectBsonSchema> = {
 	readonly schema: S;
 	readonly indexes?: readonly (
 		| keyof S['properties']
 		| { bond: readonly (keyof S['properties'])[] }
 	)[];
-	readonly docs?: FromObjectSchema<S>[];
+	readonly docs?: FromObjectBsonSchema<S>[];
 };

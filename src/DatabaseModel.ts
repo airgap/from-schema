@@ -1,8 +1,9 @@
 import { TableModel } from './TableModel';
-import { ObjectSchema } from './ObjectSchema';
+import { ObjectBsonSchema } from './bson';
 
-export type DatabaseModel<T extends Record<string, TableModel<ObjectSchema>>> =
-	{
-		type: 'database';
-		tables: T;
-	};
+export type DatabaseModel<
+	T extends Record<string, TableModel<ObjectBsonSchema>>,
+> = {
+	type: 'database';
+	tables: T;
+};
