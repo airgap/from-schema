@@ -22,3 +22,5 @@ export * from './NumberJsonSchema';
 export * from './ObjectIdJsonSchema';
 export * from './UidJsonSchema';
 export * as jsonPrimitives from './primitives';
+export * from './ExclusiveJsonSchema';
+export * from './IntersectionJsonSchema';

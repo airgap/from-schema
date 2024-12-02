@@ -26,3 +26,6 @@ export * from './UidBsonSchema';
 export * from './EmailBsonSchema';
 export * from './MapBsonSchema';
 export * as bsonPrimitives from './primitives';
+export * from './AnyOfBsonSchema';
+export * from './OneOfBsonSchema';
+export * from './AllOfBsonSchema';

@@ -20,9 +20,9 @@ type Unionable =
 	| StringBsonSchema
 	| Primitive;
 export type UnionBsonSchema = SchemaBase & {
-	readonly union: readonly Unionable[];
+	readonly oneOf: readonly Unionable[];
 };
 
 export type UnionBsonSchemaOf<M extends Unionable> = SchemaBase & {
-	readonly union: readonly M[];
+	readonly oneOf: readonly M[];
 };

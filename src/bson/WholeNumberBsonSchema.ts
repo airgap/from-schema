@@ -1,6 +1,6 @@
 import { LongBsonSchema } from './LongBsonSchema';
 import { NumberBsonSchema } from './NumberBsonSchema';
 
-export type WholeNumberBsonSchema = LongBsonSchema & {
+export type WholeBsonSchema = LongBsonSchema & {
 	minimum: 0;
 };

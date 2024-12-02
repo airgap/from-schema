@@ -1,7 +1,7 @@
 import { SchemaBase } from '../generic';
 
 export type NumberJsonSchema = SchemaBase & {
-	readonly type: 'number';
+	readonly type: 'number' | 'integer';
 	readonly minimum?: number;
 	readonly maximum?: number;
 	readonly default?: number;

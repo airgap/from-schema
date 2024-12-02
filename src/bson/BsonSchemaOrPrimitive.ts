@@ -9,6 +9,9 @@ import { UnionBsonSchema } from './UnionBsonSchema';
 import { MapBsonSchema } from './MapBsonSchema';
 import { ObjectIdBsonSchema } from './ObjectIdBsonSchema';
 import { DateBsonSchema } from './DateBsonSchema';
+import { OneOfBsonSchema } from './OneOfBsonSchema';
+import { AnyOfBsonSchema } from './AnyOfBsonSchema';
+import { AllOfBsonSchema } from './AllOfBsonSchema';
 
 export type BsonSchema =
 	| ArrayBsonSchema
@@ -20,6 +23,9 @@ export type BsonSchema =
 	| ObjectIdBsonSchema
 	| ObjectBsonSchema
 	| StringBsonSchema
-	| UnionBsonSchema;
+	| UnionBsonSchema
+	| OneOfBsonSchema
+	| AllOfBsonSchema
+	| AnyOfBsonSchema;
 
 export type BsonSchemaOrPrimitive = BsonSchema | Primitive;

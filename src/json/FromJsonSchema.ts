@@ -11,26 +11,30 @@ import {
 	MapJsonSchema,
 	MapJsonSchemaOf,
 } from './MapJsonSchema';
-import { UnionJsonSchema, UnionJsonSchemaOf } from './UnionJsonSchema';
+import { UnionJsonSchema } from './UnionJsonSchema';
 import { DateJsonSchema } from './DateJsonSchema';
 import type { ObjectId } from 'mongodb';
+import {
+	ExclusiveJsonSchema,
+	ExclusiveJsonSchemaOf,
+} from './ExclusiveJsonSchema';
 
 export type FromJsonSchema<T> = T extends DateJsonSchema
-	? Date | string
+	? string
 	: T extends StringJsonSchema
 		? string
 		: T extends NumberJsonSchema
 			? number
 			: T extends BooleanJsonSchema
 				? boolean
-				: T extends UnionJsonSchemaOf<infer P>
+				: // : T extends ExclusiveJsonSchemaOf<infer P>
+					// 	? FromJsonSchema<P>
+					T extends EnumJsonSchemaOf<infer P>
 					? PrimitiveOrFromJsonSchema<P>
-					: T extends EnumJsonSchemaOf<infer P>
-						? PrimitiveOrFromJsonSchema<P>
-						: T extends ObjectJsonSchema
-							? FromObjectJsonSchema<T>
-							: T extends MapJsonSchema
-								? FromMapJsonSchema<T>
-								: T extends ArrayJsonSchema
-									? FromJsonSchema<T['items']>[]
-									: never;
+					: T extends ObjectJsonSchema
+						? FromObjectJsonSchema<T>
+						: T extends MapJsonSchema
+							? FromMapJsonSchema<T>
+							: T extends ArrayJsonSchema
+								? FromJsonSchema<T['items']>[]
+								: never;
