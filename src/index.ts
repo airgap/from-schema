@@ -1,4 +1,4 @@
-export * from './DatabaseModel';
+export * from './MongoDatabaseModel';
 export * from './HandlerModel';
 export * from './generic';
 export * from './MongoCollectionModel';
@@ -7,5 +7,4 @@ export * from './bson2json';
 export * from './jsonToType/jsonToType';
 export * from './json';
 export * from './bson';
-export * from './jsonb';
 export * from './typeverters/bsonToType';
