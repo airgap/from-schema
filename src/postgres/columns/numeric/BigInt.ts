@@ -1,5 +1,5 @@
 import { NumberBase } from './NumberBase';
 
 export type BigIntColumnModel = NumberBase & {
-	type: 'bigint';
+	readonly type: 'bigint' | 'int8';
 };

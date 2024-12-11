@@ -1,20 +1,21 @@
-import { ObjectJsonSchema, FromObjectJsonSchema } from '../json';
-import { PostgresColumnModel } from './PostgresColumnModel';
+import { FromObjectJsonSchema } from '../json';
+import {
+	FromPostgresRecordModel,
+	PostgresRecordModel,
+} from './PostgresRecordModel';
 
-export type PostgresTableModel<
-	S extends PostgresColumnModel,
-	D extends PostgresTableModel<any, any>,
-> = {
-	readonly name: string;
+export type PostgresTableModel<S extends PostgresRecordModel> = {
 	readonly schema: S;
 	readonly indexes?: readonly (
 		| keyof S['properties']
 		| { bond: readonly (keyof S['properties'])[] }
 	)[];
-	readonly docs?: FromObjectJsonSchema<S>[];
-	readonly primaryKey?: readonly (keyof S['properties'])[];
+	readonly docs?: any[]; //FromPostgresRecordModel<S>[];
+	readonly primaryKey?:
+		| keyof S['properties']
+		| readonly (keyof S['properties'])[];
 	readonly foreignKeys?: readonly Record<
 		keyof S['properties'],
-		{ [key in D['name']]: keyof D['schema']['properties'] }
+		{ readonly [key: string]: string }
 	>[];
 };

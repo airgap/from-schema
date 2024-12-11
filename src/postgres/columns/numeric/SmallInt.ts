@@ -1,5 +1,5 @@
 import { NumberBase } from './NumberBase';
 
 export type SmallIntColumnModel = NumberBase & {
-	type: 'smallint';
+	readonly type: 'smallint' | 'int2';
 };

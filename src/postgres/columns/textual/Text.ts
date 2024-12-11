@@ -1,5 +1,8 @@
 import { SchemaBase } from '../../../generic';
 
 export type TextColumnModel = SchemaBase & {
-	type: 'text';
+	readonly type: 'text';
+	readonly minLength?: number;
+	readonly maxLength?: number;
+	readonly pattern?: string;
 };

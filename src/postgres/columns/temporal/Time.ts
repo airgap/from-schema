@@ -1,4 +1,4 @@
-import { SchemaBase } from '../../generic';
+import { SchemaBase } from '../../../generic';
 
 export type TimeColumnModel = SchemaBase & {
 	type: 'time';

@@ -1,6 +1,8 @@
-import { SchemaBase } from '../../generic';
+import { SchemaBase } from '../../../generic';
 
 export type VarcharColumnModel = SchemaBase & {
-	type: 'varchar' | 'character varying';
-	length?: number;
+	readonly type: 'varchar' | 'character varying';
+	readonly minLength?: number;
+	readonly maxLength?: number;
+	readonly pattern?: string;
 };

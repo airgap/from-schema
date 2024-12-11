@@ -1,6 +1,5 @@
 export * from './BigInt';
 export * from './BigSerial';
-export * from './Decimal';
 export * from './Double';
 export * from './Integer';
 export * from './Money';

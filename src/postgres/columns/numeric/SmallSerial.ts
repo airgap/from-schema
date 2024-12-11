@@ -1,5 +1,5 @@
 import { NumberBase } from './NumberBase';
 
 export type SmallSerialColumnModel = NumberBase & {
-	type: 'smallserial';
+	readonly type: 'smallserial' | 'serial2';
 };

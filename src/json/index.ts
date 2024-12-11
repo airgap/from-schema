@@ -11,6 +11,7 @@ export * from './FromObjectJsonSchema';
 export * from './FromPropertySchemasJson';
 export * from './FromJsonSchema';
 export * from './ObjectJsonSchema';
+export * from './OneOfJsonSchema';
 export * from './OnlyOptionalJson';
 export * from './OnlyRequiredJson';
 export * from './PrimitiveOrFromJsonSchema';

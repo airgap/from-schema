@@ -1,5 +1,5 @@
 import { NumberBase } from './NumberBase';
 
 export type IntegerColumnModel = NumberBase & {
-	type: 'integer';
+	readonly type: 'integer' | 'int' | 'int4';
 };
