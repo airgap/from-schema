@@ -29,7 +29,6 @@ export const tsonToType = <S extends TsonSchemaOrPrimitive>(s: S): string => {
 				case 'boolean':
 					return `boolean`;
 				case 'integer':
-				case 'double':
 				case 'number':
 					return `number`;
 				case 'bigint':
