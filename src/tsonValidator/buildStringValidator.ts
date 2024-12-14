@@ -1,0 +1,85 @@
+import { StringTsonSchema } from '../tson/StringTsonSchema';
+
+// Add format regex patterns
+const FORMAT_PATTERNS = {
+	date: /^\d{4}-\d{2}-\d{2}$/,
+	time: /^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.\d+)?(Z|[+-]\d{2}:[0-5][0-9])?$/,
+	'date-time':
+		/^\d{4}-\d{2}-\d{2}T([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.\d+)?(Z|[+-]\d{2}:[0-5][0-9])?$/,
+	email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+	hostname:
+		/^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+	ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+	ipv6: /^(?:(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}|(?:[a-fA-F0-9]{1,4}:){1,7}:|(?:[a-fA-F0-9]{1,4}:){1,6}:[a-fA-F0-9]{1,4}|(?:[a-fA-F0-9]{1,4}:){1,5}(?::[a-fA-F0-9]{1,4}){1,2}|(?:[a-fA-F0-9]{1,4}:){1,4}(?::[a-fA-F0-9]{1,4}){1,3}|(?:[a-fA-F0-9]{1,4}:){1,3}(?::[a-fA-F0-9]{1,4}){1,4}|(?:[a-fA-F0-9]{1,4}:){1,2}(?::[a-fA-F0-9]{1,4}){1,5}|[a-fA-F0-9]{1,4}:(?:(?::[a-fA-F0-9]{1,4}){1,6})|:(?:(?::[a-fA-F0-9]{1,4}){1,7}|:))$/,
+	uri: /^[a-zA-Z][a-zA-Z0-9+.-]*:[^\s]*$/,
+	'uri-reference':
+		/^(?:[a-zA-Z][a-zA-Z0-9+.-]*:)?(?:\/\/(?:(?:[a-zA-Z0-9\-._~!$&'()*+,;=:]|%[0-9A-F]{2})*@)?(?:\[(?:(?:(?:(?:[0-9A-F]{1,4}:){6}|::(?:[0-9A-F]{1,4}:){5}|(?:[0-9A-F]{1,4})?::(?:[0-9A-F]{1,4}:){4}|(?:(?:[0-9A-F]{1,4}:){0,1}[0-9A-F]{1,4})?::(?:[0-9A-F]{1,4}:){3}|(?:(?:[0-9A-F]{1,4}:){0,2}[0-9A-F]{1,4})?::(?:[0-9A-F]{1,4}:){2}|(?:(?:[0-9A-F]{1,4}:){0,3}[0-9A-F]{1,4})?::[0-9A-F]{1,4}:|(?:(?:[0-9A-F]{1,4}:){0,4}[0-9A-F]{1,4})?::)(?:[0-9A-F]{1,4}:[0-9A-F]{1,4}|(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))|(?:(?:[0-9A-F]{1,4}:){0,5}[0-9A-F]{1,4})?::[0-9A-F]{1,4}|(?:(?:[0-9A-F]{1,4}:){0,6}[0-9A-F]{1,4})?::)|[Vv][0-9A-F]+\.[a-zA-Z0-9\-._~!$&'()*+,;=:]+)\]|(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(?:[a-zA-Z0-9\-._~!$&'()*+,;=]|%[0-9A-F]{2})*)(?::[0-9]*)?(?:\/(?:[a-zA-Z0-9\-._~!$&'()*+,;=:@]|%[0-9A-F]{2})*)*|\/(?:(?:[a-zA-Z0-9\-._~!$&'()*+,;=:@]|%[0-9A-F]{2})+(?:\/(?:[a-zA-Z0-9\-._~!$&'()*+,;=:@]|%[0-9A-F]{2})*)*)?|(?:[a-zA-Z0-9\-._~!$&'()*+,;=:@]|%[0-9A-F]{2})+(?:\/(?:[a-zA-Z0-9\-._~!$&'()*+,;=:@]|%[0-9A-F]{2})*)*)?(?:\?(?:[a-zA-Z0-9\-._~!$&'()*+,;=:@/?]|%[0-9A-F]{2})*)?(?:#(?:[a-zA-Z0-9\-._~!$&'()*+,;=:@/?]|%[0-9A-F]{2})*)?$/i,
+	uuid: /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+	'uri-template':
+		/^(?:(?:[^\x00-\x20"'<>%\\^`{|}]|%[0-9a-f]{2})|\{[+#./;?&=,!@|]?(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?(?:,(?:[a-z0-9_]|%[0-9a-f]{2})+(?::[1-9][0-9]{0,3}|\*)?)*\})*$/i,
+	'json-pointer': /^(?:\/(?:[^~/]|~0|~1)*)*$/,
+	'relative-json-pointer': /^\d+(?:\/(?:[^~/]|~0|~1)*)*$/,
+	regex:
+		/^(?:(?:[^?*+{}()[\]\\|/]|\\.|\[(?:[^\]\\]|\\.)*\]|\((?:[^)\\]|\\.)*\)|\{(?:[^}\\]|\\.)*\})+|[?*+{}()[\]\\|/])$/,
+} as const;
+
+export function buildStringValidator(schema: StringTsonSchema) {
+	const checks: string[] = [];
+	const closureVars: Record<string, any> = {};
+
+	if (schema.minLength !== undefined) {
+		checks.push(
+			`if (value.length < ${schema.minLength}) ` +
+				`return "String must be at least ${schema.minLength} characters long";`,
+		);
+	}
+
+	if (schema.maxLength !== undefined) {
+		checks.push(
+			`if (value.length > ${schema.maxLength}) ` +
+				`return "String must be at most ${schema.maxLength} characters long";`,
+		);
+	}
+
+	if (schema.format) {
+		const formatRegex = FORMAT_PATTERNS[schema.format];
+		closureVars.formatRegex = formatRegex;
+		checks.push(
+			`if (!formatRegex.test(value)) ` +
+				`return "String must be a valid ${schema.format} format";`,
+		);
+	}
+
+	if (schema.pattern !== undefined) {
+		// Pre-compile the regex and close over it to avoid runtime regex compilation
+		const regex = new RegExp(schema.pattern);
+		closureVars.regex = regex;
+		checks.push(
+			`if (!regex.test(value)) ` +
+				`return "String must match pattern: ${schema.pattern}";`,
+		);
+	}
+
+	const functionBody = `
+        if (typeof value !== "string") return "Value must be a string";
+        ${checks.join('\n        ')}
+        return undefined;
+    `;
+
+	// If we have closure variables, use the closure approach
+	if (Object.keys(closureVars).length > 0) {
+		return new Function(
+			...Object.keys(closureVars),
+			`
+            return function validate(value) {
+                ${functionBody}
+            }
+        `,
+		)(...Object.values(closureVars));
+	}
+
+	// Otherwise, use the simple approach
+	return new Function('value', functionBody) as (
+		value: unknown,
+	) => string | undefined;
+}

@@ -15,3 +15,4 @@ export * from './tsonToType';
 export * from './TsonHandlerModel';
 export * from './typeverters/postgresRecordToKysely';
 export * from './typeverters/postgresColumnToKysely';
+export * from './tsonValidator';
