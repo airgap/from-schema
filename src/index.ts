@@ -13,3 +13,5 @@ export * from './tson';
 export * from './protobuf/tsonToProtobuf';
 export * from './tsonToType';
 export * from './TsonHandlerModel';
+export * from './typeverters/postgresRecordToKysely';
+export * from './typeverters/postgresColumnToKysely';
