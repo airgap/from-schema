@@ -4,9 +4,11 @@ import { PostgresColumnModel } from '../postgres';
 export const postgresColumnToKysely = <S extends PostgresColumnModel>(
 	s: S,
 ): string => {
+	console.log(s.type);
 	switch (s.type) {
 		case 'enum':
-			return `${s.enum.join(' | ')}`;
+			console.log(s.enum);
+			return `${s.enum.map((e) => `'${e}'`).join(' | ')}`;
 		case 'array':
 			return `Array<${postgresColumnToKysely(s.items)}>`;
 		case 'char':
@@ -39,6 +41,8 @@ export const postgresColumnToKysely = <S extends PostgresColumnModel>(
 		case 'smallserial':
 			return `Generated<number>`;
 		case 'date':
+		case 'timestamp':
+		case 'timestamptz':
 			return `Date`;
 		case 'jsonb':
 			return s.schema ? jsonToType(s.schema) : `unknown`;

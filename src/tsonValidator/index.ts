@@ -3,6 +3,7 @@ export * from './buildBigintValidator';
 export * from './buildBooleanValidator';
 export * from './buildNumberValidator';
 export * from './buildObjectValidator';
+export * from './buildOneOfValidator';
 export * from './buildStringValidator';
 export * from './buildValidator';
 export * from './ValidationError';
