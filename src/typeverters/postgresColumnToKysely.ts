@@ -21,12 +21,13 @@ export const postgresColumnToKysely = <S extends PostgresColumnModel>(
 		case 'bool':
 		case 'boolean':
 			return `boolean`;
+		case 'int8':
+		case 'bigint':
+			return `bigint`;
 		case 'int':
 		case 'smallint':
 		case 'int2':
-		case 'bigint':
 		case 'int4':
-		case 'int8':
 		case 'integer':
 		case 'double precision':
 		case 'float8':
