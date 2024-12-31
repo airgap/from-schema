@@ -5,5 +5,5 @@ export type TsonHandlerModel = Readonly<{
 	request?: TsonSchema;
 	response?: TsonSchema;
 	authenticated?: boolean;
-	stream?: boolean;
+	stream?: boolean | { tweakRequest?: TsonSchema; tweakResponse?: TsonSchema };
 }>;
