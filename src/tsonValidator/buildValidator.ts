@@ -84,6 +84,7 @@ export function buildValidator(schema: TsonSchemaOrPrimitive): Validator {
 		case 'bigint':
 			return buildBigintValidator(schema as BigIntTsonSchema);
 		case 'number':
+		case 'integer':
 			return buildNumberValidator(schema as NumberTsonSchema);
 		case 'boolean':
 			return buildBooleanValidator(schema as BooleanTsonSchema);
