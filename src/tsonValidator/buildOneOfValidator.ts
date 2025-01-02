@@ -8,37 +8,60 @@ export function buildOneOfValidator(schema: OneOfTsonSchema): Validator {
 		validators,
 	};
 
+	const ERROR_MESSAGE = 'Value must match one of the allowed schemas';
+
 	// Fast throwing version
 	const throwingBody = `
+        let anyMatch = false;
+        
         for (const validator of validators) {
             try {
                 validator.validateOrThrow(value);
-                return; // validation succeeded
-            } catch (e) {
-                continue; // try next validator
+                anyMatch = true;
+                break;
+            } catch {
+                // Continue to next validator
             }
         }
-        throw new Error("Value did not match any of the allowed schemas");
+        
+        if (!anyMatch) {
+            throw new Error("${ERROR_MESSAGE}");
+        }
     `;
 
 	// Fast single-error version
 	const quickBody = `
+        // Track if any schema matched completely
+        let anyMatch = false;
+        
+        // Try each schema validator
         for (const validator of validators) {
             const result = validator.isValid(value);
-            if (result === true) return true;
+            if (result === true) {
+                anyMatch = true;
+                break;
+            }
         }
-        return "Value did not match any of the allowed schemas";
+        
+        // Only return true if we found an exact match
+        return anyMatch ? true : "${ERROR_MESSAGE}";
     `;
 
 	// Collecting version
 	const collectingBody = `
-        const allErrors = [];
+        let anyMatch = false;
+        let allErrors = [];
+        
         for (const validator of validators) {
             const errors = validator.validate(value);
-            if (errors.length === 0) return []; // validation succeeded
-            allErrors.push(...errors);
+            if (errors.length === 0) {
+                anyMatch = true;
+                break;
+            }
+            allErrors = allErrors.concat(errors);
         }
-        return ["Value did not match any of the allowed schemas", ...allErrors];
+        
+        return anyMatch ? [] : ["${ERROR_MESSAGE}"];
     `;
 
 	return {

@@ -25,6 +25,45 @@ const FORMAT_PATTERNS = {
 } as const;
 
 export function buildStringValidator(schema: StringTsonSchema): Validator {
+	// If const is set, only validate against that value
+	if ('const' in schema) {
+		const constValue = schema.const;
+
+		// Fast throwing version
+		const throwingBody = `
+			if (typeof value !== "string") throw new Error("Value must be a string");
+			if (value !== "${constValue}") throw new Error('Expected "${constValue}", got "' + value + '"');
+	 `;
+
+		// Fast single-error version
+		const quickBody = `
+			if (typeof value !== "string") return "Value must be a string";
+			if (value !== "${constValue}") return 'Expected "${constValue}", got "' + value + '"';
+			return true;
+	 `;
+
+		// Collecting version
+		const collectingBody = `
+			const errors = [];
+			if (typeof value !== "string") errors.push("Value must be a string");
+			if (value !== "${constValue}") errors.push('Expected "${constValue}", got "' + value + '"');
+			return errors;
+	 `;
+
+		return {
+			validate: new Function('value', collectingBody) as (
+				value: unknown,
+			) => string[],
+			validateOrThrow: new Function('value', throwingBody) as (
+				value: unknown,
+			) => void,
+			isValid: new Function('value', quickBody) as (
+				value: unknown,
+			) => true | string,
+		};
+	}
+
+	// Original validation logic for non-const strings
 	const checks: string[] = [];
 	const closureVars: Record<string, any> = {};
 

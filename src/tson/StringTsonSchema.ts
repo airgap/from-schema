@@ -1,7 +1,9 @@
 import { SchemaBase } from '../generic';
 
-export type StringTsonSchema = SchemaBase & {
+type StringBase = {
 	readonly type: 'string';
+};
+type VariableString = StringBase & {
 	readonly format?:
 		| 'date'
 		| 'time'
@@ -23,3 +25,7 @@ export type StringTsonSchema = SchemaBase & {
 	readonly pattern?: string;
 	readonly examples?: string[];
 };
+type ConstantString = StringBase & {
+	readonly const: string;
+};
+export type StringTsonSchema = SchemaBase & (VariableString | ConstantString);

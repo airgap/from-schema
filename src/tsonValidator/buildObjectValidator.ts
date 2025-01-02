@@ -1,4 +1,5 @@
 import { ObjectTsonSchema } from '../tson/ObjectTsonSchema';
+import { TsonSchema } from '../tson/TsonSchema';
 import { Validator } from '../Validator';
 import { buildValidator } from './buildValidator';
 
@@ -15,7 +16,7 @@ export function buildObjectValidator(schema: ObjectTsonSchema): Validator {
 
 	// Fast throwing version
 	const throwingBody = `
-		if (typeof value !== 'object' || value === null) {
+		if (typeof value !== 'object' || value === null || Array.isArray(value)) {
 			throw new Error('Value must be an object');
 		}
 
@@ -29,14 +30,18 @@ export function buildObjectValidator(schema: ObjectTsonSchema): Validator {
 		// Validate each property
 		for (const [key, validator] of Object.entries(propertyValidators)) {
 			if (key in value) {
-				validator.validateOrThrow(value[key]);
+				try {
+					validator.validateOrThrow(value[key]);
+				} catch (error) {
+					throw new Error(\`Property "\${key}": \${error.message}\`);
+				}
 			}
 		}
 	`;
 
 	// Fast single-error version
 	const quickBody = `
-		if (typeof value !== 'object' || value === null) {
+		if (typeof value !== 'object' || value === null || Array.isArray(value)) {
 			return 'Value must be an object';
 		}
 
