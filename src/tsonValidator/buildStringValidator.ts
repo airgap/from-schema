@@ -42,10 +42,13 @@ export function buildStringValidator(schema: StringTsonSchema): Validator {
 			return true;
 	 `;
 
-		// Collecting version
+		// Collecting version - Only add const check if value is a string
 		const collectingBody = `
 			const errors = [];
-			if (typeof value !== "string") errors.push("Value must be a string");
+			if (typeof value !== "string") {
+				errors.push("Value must be a string");
+				return errors;
+			}
 			if (value !== "${constValue}") errors.push('Expected "${constValue}", got "' + value + '"');
 			return errors;
 	 `;
@@ -81,13 +84,22 @@ export function buildStringValidator(schema: StringTsonSchema): Validator {
 		);
 	}
 
-	if (schema.format) {
-		const formatRegex = FORMAT_PATTERNS[schema.format];
-		closureVars.formatRegex = formatRegex;
-		checks.push(
-			`if (!formatRegex.test(value)) ` +
-				`return "String must be a valid ${schema.format} format";`,
-		);
+	if (schema.format !== undefined) {
+		const pattern = FORMAT_PATTERNS[schema.format];
+		if (pattern) {
+			const flags = pattern.toString().match(/\/([gimuy]*)$/)?.[1] || '';
+			const patternStr = pattern
+				.toString()
+				.slice(1, -1 - (flags.length ? flags.length + 1 : 0)) // Remove leading/trailing slashes and flags
+				.replace(/\\/g, '\\\\') // Escape backslashes first
+				.replace(/"/g, '\\"') // Then escape quotes
+				.replace(/\$/g, '\\$'); // Escape dollar signs
+			console.log('Processed pattern:', patternStr);
+			console.log('Format:', schema.format);
+			checks.push(
+				`if (!new RegExp("${patternStr}", "${flags}").test(value)) return "String must be a valid ${schema.format} format";`,
+			);
+		}
 	}
 
 	if (schema.pattern !== undefined) {
@@ -117,7 +129,11 @@ export function buildStringValidator(schema: StringTsonSchema): Validator {
 	const collectingBody = `
         const errors = [];
         if (typeof value !== "string") errors.push("Value must be a string");
-        ${checks.map((check) => check.replace('return', 'errors.push')).join('\n        ')}
+        ${checks
+					.map((check) => {
+						return check.replace('return', 'errors.push(').replace(/;$/, ');');
+					})
+					.join('\n        ')}
         return errors;
     `;
 
@@ -143,6 +159,13 @@ export function buildStringValidator(schema: StringTsonSchema): Validator {
 			isValid: quickValidator as (value: unknown) => true | string,
 		};
 	}
+
+	// Before creating the Function
+	console.log('=== Generated Function Bodies ===');
+	console.log('Throwing body:', throwingBody);
+	console.log('Quick body:', quickBody);
+	console.log('Collecting body:', collectingBody);
+	console.log('Closure vars:', closureVars);
 
 	return {
 		validate: new Function('value', collectingBody) as (
