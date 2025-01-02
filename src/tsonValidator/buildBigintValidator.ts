@@ -1,45 +1,68 @@
 import { BigIntTsonSchema } from '../tson/BigIntTsonSchema';
+import { Validator } from '../Validator';
 
-export function buildBigintValidator(schema: BigIntTsonSchema) {
+export function buildBigintValidator(schema: BigIntTsonSchema): Validator {
 	const checks: string[] = [];
 
 	if (schema.minimum !== undefined) {
-		// Convert bigint to string for code generation
 		const minVal = schema.minimum.toString();
 		checks.push(
-			`if (value < BigInt("${minVal}")) ` +
-				`return "Value must be greater than or equal to ${minVal}";`,
+			`if (value < BigInt("${minVal}")) return "Value must be greater than or equal to ${minVal}";`,
 		);
 	}
 
 	if (schema.maximum !== undefined) {
-		// Convert bigint to string for code generation
 		const maxVal = schema.maximum.toString();
 		checks.push(
-			`if (value > BigInt("${maxVal}")) ` +
-				`return "Value must be less than or equal to ${maxVal}";`,
+			`if (value > BigInt("${maxVal}")) return "Value must be less than or equal to ${maxVal}";`,
 		);
 	}
 
-	// Generate the validation function
-	const functionBody = `
-        if (typeof value !== "bigint") {
-            // Try to convert string to bigint if possible
-            if (typeof value === "string") {
-                try {
-                    value = BigInt(value);
-                } catch {
-                    return "Value must be a valid bigint";
-                }
-            } else {
-                return "Value must be a bigint";
-            }
-        }
-        ${checks.join('\n        ')}
-        return undefined;
-    `;
+	// Base validation logic for bigint type checking
+	const typeCheck = `
+		if (typeof value !== "bigint") {
+			if (typeof value === "string") {
+				try {
+					value = BigInt(value);
+				} catch {
+					return "Value must be a valid bigint";
+				}
+			} else {
+				return "Value must be a bigint";
+			}
+		}
+	`;
 
-	return new Function('value', functionBody) as (
-		value: unknown,
-	) => string | undefined;
+	// Fast throwing version
+	const throwingBody = `
+		${typeCheck.replace('return', 'throw new Error(')}
+		${checks.map((check) => check.replace('return', 'throw new Error(')).join('\n		')}
+	`;
+
+	// Fast single-error version
+	const quickBody = `
+		${typeCheck}
+		${checks.join('\n		')}
+		return true;
+	`;
+
+	// Collecting version
+	const collectingBody = `
+		const errors = [];
+		${typeCheck.replace('return', 'errors.push(')}
+		${checks.map((check) => check.replace('return', 'errors.push(')).join('\n		')}
+		return errors;
+	`;
+
+	return {
+		validate: new Function('value', collectingBody) as (
+			value: unknown,
+		) => string[],
+		validateOrThrow: new Function('value', throwingBody) as (
+			value: unknown,
+		) => void,
+		isValid: new Function('value', quickBody) as (
+			value: unknown,
+		) => true | string,
+	};
 }

@@ -1,4 +1,5 @@
 import { StringTsonSchema } from '../tson/StringTsonSchema';
+import { Validator } from '../Validator';
 
 // Add format regex patterns
 const FORMAT_PATTERNS = {
@@ -23,7 +24,7 @@ const FORMAT_PATTERNS = {
 		/^(?:(?:[^?*+{}()[\]\\|/]|\\.|\[(?:[^\]\\]|\\.)*\]|\((?:[^)\\]|\\.)*\)|\{(?:[^}\\]|\\.)*\})+|[?*+{}()[\]\\|/])$/,
 } as const;
 
-export function buildStringValidator(schema: StringTsonSchema) {
+export function buildStringValidator(schema: StringTsonSchema): Validator {
 	const checks: string[] = [];
 	const closureVars: Record<string, any> = {};
 
@@ -60,26 +61,59 @@ export function buildStringValidator(schema: StringTsonSchema) {
 		);
 	}
 
-	const functionBody = `
-        if (typeof value !== "string") return "Value must be a string";
+	// Fast throwing version
+	const throwingBody = `
+        if (typeof value !== "string") throw new Error("Value must be a string");
         ${checks.join('\n        ')}
-        return undefined;
     `;
 
-	// If we have closure variables, use the closure approach
+	// Fast single-error version
+	const quickBody = `
+        if (typeof value !== "string") return "Value must be a string";
+        ${checks.join('\n        ')}
+        return true;
+    `;
+
+	// Collecting version
+	const collectingBody = `
+        const errors = [];
+        if (typeof value !== "string") errors.push("Value must be a string");
+        ${checks.map((check) => check.replace('return', 'errors.push')).join('\n        ')}
+        return errors;
+    `;
+
 	if (Object.keys(closureVars).length > 0) {
-		return new Function(
+		const throwingValidator = new Function(
 			...Object.keys(closureVars),
-			`
-            return function validate(value) {
-                ${functionBody}
-            }
-        `,
+			`return function validate(value) { ${throwingBody} }`,
 		)(...Object.values(closureVars));
+
+		const quickValidator = new Function(
+			...Object.keys(closureVars),
+			`return function validate(value) { ${quickBody} }`,
+		)(...Object.values(closureVars));
+
+		const collectingValidator = new Function(
+			...Object.keys(closureVars),
+			`return function validate(value) { ${collectingBody} }`,
+		)(...Object.values(closureVars));
+
+		return {
+			validate: collectingValidator as (value: unknown) => string[],
+			validateOrThrow: throwingValidator as (value: unknown) => void,
+			isValid: quickValidator as (value: unknown) => true | string,
+		};
 	}
 
-	// Otherwise, use the simple approach
-	return new Function('value', functionBody) as (
-		value: unknown,
-	) => string | undefined;
+	return {
+		validate: new Function('value', collectingBody) as (
+			value: unknown,
+		) => string[],
+		validateOrThrow: new Function('value', throwingBody) as (
+			value: unknown,
+		) => void,
+		isValid: new Function('value', quickBody) as (
+			value: unknown,
+		) => true | string,
+	};
 }

@@ -18,26 +18,62 @@ import { buildBigintValidator } from './buildBigintValidator';
 import { buildEnumValidator } from './buildEnumValidator';
 import { buildOneOfValidator } from './buildOneOfValidator';
 
-export function buildValidator(schema: TsonSchemaOrPrimitive) {
+type Validator = {
+	validate: (value: unknown) => string[];
+	validateOrThrow: (value: unknown) => void;
+	isValid: (value: unknown) => true | string;
+};
+
+export function buildValidator(schema: TsonSchemaOrPrimitive): Validator {
+	// Handle primitive literals
 	switch (typeof schema) {
 		case 'string':
 		case 'number':
 		case 'boolean':
-		case 'bigint':
-			return (value: unknown) => {
-				if (value === schema) return value;
-				throw new Error(
-					`Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ${value}`,
-				);
+		case 'bigint': {
+			const expectedValue = schema;
+			return {
+				validate: (value: unknown) =>
+					value === expectedValue
+						? []
+						: [
+								`Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ${value}`,
+							],
+				validateOrThrow: (value: unknown) => {
+					if (value !== expectedValue) {
+						throw new Error(
+							`Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ${value}`,
+						);
+					}
+				},
+				isValid: (value: unknown) =>
+					value === expectedValue
+						? true
+						: `Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ${value}`,
 			};
+		}
 	}
-	if (Array.isArray(schema))
-		return (value: unknown) => {
-			if (value === schema) return value;
-			throw new Error(`Expected ${schema}, got ${value}`);
+
+	// Handle array literals
+	if (Array.isArray(schema)) {
+		const expectedValue = schema;
+		return {
+			validate: (value: unknown) =>
+				value === expectedValue ? [] : [`Expected ${schema}, got ${value}`],
+			validateOrThrow: (value: unknown) => {
+				if (value !== expectedValue) {
+					throw new Error(`Expected ${schema}, got ${value}`);
+				}
+			},
+			isValid: (value: unknown) =>
+				value === expectedValue ? true : `Expected ${schema}, got ${value}`,
 		};
+	}
+
+	// Handle schema objects
 	if ('enum' in schema) return buildEnumValidator(schema as EnumTsonSchema);
 	if ('oneOf' in schema) return buildOneOfValidator(schema as OneOfTsonSchema);
+
 	switch ('type' in schema && schema.type) {
 		case 'array':
 			return buildArrayValidator(schema as ArrayTsonSchema);

@@ -1,41 +1,59 @@
 import { ArrayTsonSchema } from '../tson/ArrayTsonSchema';
+import { Validator } from '../Validator';
 import { buildValidator } from './buildValidator';
 import { ValidationError } from './ValidationError';
 
-export function buildArrayValidator(schema: ArrayTsonSchema) {
+export function buildArrayValidator(schema: ArrayTsonSchema): Validator {
 	const itemValidator = buildValidator(schema.items);
 
-	return function validateArray(value: unknown): value is unknown[] {
+	const validate = (value: unknown): string[] => {
+		const errors: string[] = [];
+
 		// Check if value is an array
 		if (!Array.isArray(value)) {
-			throw new ValidationError('Value must be an array');
+			return ['Value must be an array'];
 		}
 
 		// Check minLength
 		if (schema.minLength !== undefined && value.length < schema.minLength) {
-			throw new ValidationError(
+			errors.push(
 				`Array length ${value.length} is less than minimum length ${schema.minLength}`,
 			);
 		}
 
 		// Check maxLength
 		if (schema.maxLength !== undefined && value.length > schema.maxLength) {
-			throw new ValidationError(
+			errors.push(
 				`Array length ${value.length} exceeds maximum length ${schema.maxLength}`,
 			);
 		}
 
 		// Validate each item
 		for (let i = 0; i < value.length; i++) {
-			try {
-				itemValidator(value[i]);
-			} catch (error) {
-				throw new ValidationError(
-					`Invalid item at index ${i}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				);
+			const itemErrors = itemValidator.validate(value[i]);
+			if (itemErrors.length > 0) {
+				errors.push(`Invalid item at index ${i}: ${itemErrors.join(', ')}`);
 			}
 		}
 
-		return true;
+		return errors;
+	};
+
+	const validateOrThrow = (value: unknown): void => {
+		const errors = validate(value);
+		if (errors.length > 0) {
+			throw new ValidationError(errors.join('; '));
+		}
+	};
+
+	const isValid = (value: unknown): true | string => {
+		const errors = validate(value);
+		return errors.length === 0 ? true : errors.join('; ');
+	};
+
+	return {
+		validate,
+		validateOrThrow,
+		isValid,
 	};
 }
