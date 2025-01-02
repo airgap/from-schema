@@ -43,8 +43,8 @@ export function buildNumberValidator(schema: NumberTsonSchema): Validator {
 
 	// Fast throwing version
 	const throwingBody = `
-		${typeCheck.replace('return', 'throw new Error(')}
-		${checks.map((check) => check.replace('return', 'throw new Error(')).join('\n		')}
+		${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
+		${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n		')}
 	`;
 
 	// Fast single-error version

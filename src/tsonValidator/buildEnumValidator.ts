@@ -1,63 +1,76 @@
 import { EnumTsonSchema } from '../tson/EnumTsonSchema';
 
 export function buildEnumValidator(schema: EnumTsonSchema) {
-	const enumLookup = Object.fromEntries(
-		schema.enum.map((value) => [value, true]),
-	);
-	const closureVars: Record<string, any> = {
-		enumLookup,
-		enumValues: schema.enum,
-	};
+	const hasDefault = 'default' in schema;
+	const defaultValue = hasDefault ? schema.default : undefined;
 
-	// Fast throwing version
-	const throwingBody = `
-        if (!enumLookup[value]) {
-            throw new Error("Value must be one of: " + enumValues.join(", "));
+	const typeCheck = `
+        if (typeof value !== "string") {
+            return "Expected string, got " + (value === null ? "object" : typeof value);
         }
     `;
 
-	// Fast single-error version
-	const quickBody = `
-        if (!enumLookup[value]) {
-            return "Value must be one of: " + enumValues.join(", ");
+	const enumCheck = `
+        if (![${schema.enum.map((v) => JSON.stringify(v)).join(', ')}].includes(value)) {
+            return "Value must be one of: ${schema.enum.join(', ')}";
         }
-        return true;
     `;
 
-	// Collecting version
-	const collectingBody = `
-        const errors = [];
-        if (!enumLookup[value]) {
-            errors.push("Value must be one of: " + enumValues.join(", "));
+	const defaultCheck = hasDefault
+		? `
+        if (value === undefined) {
+            value = ${JSON.stringify(defaultValue)};
+            return true;
         }
-        return errors;
-    `;
+    `
+		: '';
 
-	if (Object.keys(closureVars).length > 0) {
-		return {
-			validate: new Function(
-				...Object.keys(closureVars),
-				`return function validate(value) { ${collectingBody} }`,
-			)(...Object.values(closureVars)) as (value: unknown) => string[],
-			validateOrThrow: new Function(
-				...Object.keys(closureVars),
-				`return function validate(value) { ${throwingBody} }`,
-			)(...Object.values(closureVars)) as (value: unknown) => void,
-			isValid: new Function(
-				...Object.keys(closureVars),
-				`return function validate(value) { ${quickBody} }`,
-			)(...Object.values(closureVars)) as (value: unknown) => true | string,
-		};
-	}
+	const validationBody = `{
+        return (function() {
+            ${defaultCheck}
+            ${typeCheck}
+            ${enumCheck}
+            return true;
+        })();
+    }`;
+
+	const throwingBody = `{
+        const result = (function() {
+            if (value === undefined && ${hasDefault}) {
+                value = ${JSON.stringify(defaultValue)};
+                return true;
+            }
+            ${typeCheck}
+            ${enumCheck}
+            return true;
+        })();
+        if (result !== true) {
+            throw new Error(result);
+        }
+        return value;
+    }`;
+
+	const validateBody = `{
+        const result = (function() {
+            ${defaultCheck}
+            ${typeCheck}
+            ${enumCheck}
+            return true;
+        })();
+        if (result !== true) {
+            return [result];
+        }
+        return [];
+    }`;
 
 	return {
-		validate: new Function('value', collectingBody) as (
+		validate: new Function('value', validateBody) as (
 			value: unknown,
 		) => string[],
 		validateOrThrow: new Function('value', throwingBody) as (
 			value: unknown,
-		) => void,
-		isValid: new Function('value', quickBody) as (
+		) => string,
+		isValid: new Function('value', validationBody) as (
 			value: unknown,
 		) => true | string,
 	};

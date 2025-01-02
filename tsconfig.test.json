@@ -14,8 +14,8 @@
 		"allowSyntheticDefaultImports": false,
 		"forceConsistentCasingInFileNames": true,
 		"allowJs": false,
-		"importsNotUsedAsValues": "remove"
+		"importsNotUsedAsValues": "remove",
+		"types": ["bun", "vitest"]
 	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "dist", "**/*.test.ts"]
+	"include": ["src/**/*"]
 }

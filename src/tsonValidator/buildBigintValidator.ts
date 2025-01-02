@@ -35,22 +35,22 @@ export function buildBigintValidator(schema: BigIntTsonSchema): Validator {
 
 	// Fast throwing version
 	const throwingBody = `
-		${typeCheck.replace('return', 'throw new Error(')}
-		${checks.map((check) => check.replace('return', 'throw new Error(')).join('\n		')}
+		${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
+		${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n        ')}
 	`;
 
 	// Fast single-error version
 	const quickBody = `
 		${typeCheck}
-		${checks.join('\n		')}
+		${checks.join('\n        ')}
 		return true;
 	`;
 
 	// Collecting version
 	const collectingBody = `
 		const errors = [];
-		${typeCheck.replace('return', 'errors.push(')}
-		${checks.map((check) => check.replace('return', 'errors.push(')).join('\n		')}
+		${typeCheck.replace(/return "(.*?)";/g, 'errors.push("$1");')}
+		${checks.map((check) => check.replace(/return "(.*?)";/g, 'errors.push("$1");')).join('\n        ')}
 		return errors;
 	`;
 
