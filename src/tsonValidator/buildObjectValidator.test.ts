@@ -159,4 +159,81 @@ describe('buildObjectValidator', () => {
 			]);
 		});
 	});
+
+	describe('bigint property validation', () => {
+		const schema: ObjectTsonSchema = {
+			type: 'object',
+			properties: {
+				id: { type: 'bigint' },
+			},
+			required: ['id'],
+		};
+		const validator = buildObjectValidator(schema);
+
+		test('accepts valid bigint values', () => {
+			expect(validator.isValid({ id: BigInt(123) })).toBe(true);
+			expect(validator.validate({ id: BigInt(123) })).toEqual([]);
+			expect(() =>
+				validator.validateOrThrow({ id: BigInt(123) }),
+			).not.toThrow();
+		});
+
+		test('accepts string representations of bigints', () => {
+			expect(validator.isValid({ id: '123' })).toBe(true);
+			expect(validator.validate({ id: '123' })).toEqual([]);
+			expect(() => validator.validateOrThrow({ id: '123' })).not.toThrow();
+		});
+
+		test('rejects missing id', () => {
+			expect(validator.isValid({})).toBe('Missing required property: id');
+			expect(validator.validate({})).toEqual(['Missing required property: id']);
+			expect(() => validator.validateOrThrow({})).toThrow(
+				'Missing required property: id',
+			);
+		});
+
+		test('rejects invalid bigint values', () => {
+			const invalidValues = [
+				{ id: 'not a number' },
+				{ id: 123 }, // number instead of bigint
+				{ id: true },
+				{ id: {} },
+				{ id: [] },
+				{ id: null },
+				{ id: undefined },
+			];
+
+			for (const value of invalidValues) {
+				expect(validator.isValid(value)).toBe(
+					'Property "id": Value must be a valid bigint',
+				);
+				expect(validator.validate(value)).toEqual([
+					'Property "id": Value must be a bigint',
+				]);
+				expect(() => validator.validateOrThrow(value)).toThrow(
+					'Property "id": Value must be a bigint',
+				);
+			}
+		});
+
+		test('rejects non-objects', () => {
+			const invalidValues = [
+				null,
+				undefined,
+				123,
+				'string',
+				true,
+				[],
+				BigInt(123),
+			];
+
+			for (const value of invalidValues) {
+				expect(validator.isValid(value)).toBe('Value must be an object');
+				expect(validator.validate(value)).toEqual(['Value must be an object']);
+				expect(() => validator.validateOrThrow(value)).toThrow(
+					'Value must be an object',
+				);
+			}
+		});
+	});
 });

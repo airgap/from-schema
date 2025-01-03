@@ -7,3 +7,5 @@ export * from './buildOneOfValidator';
 export * from './buildStringValidator';
 export * from './buildValidator';
 export * from './ValidationError';
+export * from './buildDateValidator';
+export * from './buildEnumValidator';
