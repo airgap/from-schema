@@ -1,6 +1,7 @@
 import {
 	ArrayTsonSchema,
 	BigIntTsonSchema,
+	DateTsonSchema,
 	EnumTsonSchema,
 	OneOfTsonSchema,
 } from '../tson';
@@ -17,6 +18,7 @@ import { buildNumberValidator } from './buildNumberValidator';
 import { buildBigintValidator } from './buildBigintValidator';
 import { buildEnumValidator } from './buildEnumValidator';
 import { buildOneOfValidator } from './buildOneOfValidator';
+import { buildDateValidator } from './buildDateValidator';
 
 type Validator = {
 	validate: (value: unknown) => string[];
@@ -88,6 +90,8 @@ export function buildValidator(schema: TsonSchemaOrPrimitive): Validator {
 			return buildNumberValidator(schema as NumberTsonSchema);
 		case 'boolean':
 			return buildBooleanValidator(schema as BooleanTsonSchema);
+		case 'date':
+			return buildDateValidator(schema as DateTsonSchema);
 		default:
 			throw new Error(`Invalid schema: ${JSON.stringify(schema, null, 4)}`);
 	}
