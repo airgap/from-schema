@@ -12,18 +12,17 @@ export function buildObjectValidator(schema: ObjectTsonSchema): Validator {
 	}
 
 	const requiredProps = 'required' in schema ? schema.required : [];
-	const closureVars = { propertyValidators, requiredProps };
 
 	// Fast throwing version
-	const throwingBody = `
-		if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+	const validateOrThrow = (value: unknown) => {
+		if (!isObject(value)) {
 			throw new Error('Value must be an object');
 		}
 
 		// Check required properties
 		for (const prop of requiredProps) {
 			if (!(prop in value)) {
-				throw new Error(\`Missing required property: \${prop}\`);
+				throw new Error(`Missing required property: ${prop}`);
 			}
 		}
 
@@ -31,80 +30,79 @@ export function buildObjectValidator(schema: ObjectTsonSchema): Validator {
 		for (const [key, validator] of Object.entries(propertyValidators)) {
 			if (key in value) {
 				try {
-					validator.validateOrThrow(value[key]);
+					validator.validateOrThrow((value as Record<string, unknown>)[key]);
 				} catch (error) {
-					throw new Error(\`Property "\${key}": \${error.message}\`);
+					throw new Error(`Property "${key}": ${(error as Error).message}`);
 				}
 			}
 		}
-	`;
+	};
 
 	// Fast single-error version
-	const quickBody = `
-		if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+	const isValid = (value: unknown): true | string => {
+		if (!isObject(value)) {
 			return 'Value must be an object';
 		}
 
 		// Check required properties
 		for (const prop of requiredProps) {
 			if (!(prop in value)) {
-				return \`Missing required property: \${prop}\`;
+				return `Missing required property: ${prop}`;
 			}
 		}
 
 		// Validate each property
 		for (const [key, validator] of Object.entries(propertyValidators)) {
 			if (key in value) {
-				const result = validator.isValid(value[key]);
+				const result = validator.isValid(
+					(value as Record<string, unknown>)[key],
+				);
 				if (result !== true) {
-					return \`Property "\${key}": \${result}\`;
+					return `Property "${key}": ${result}`;
 				}
 			}
 		}
 
 		return true;
-	`;
+	};
 
 	// Collecting version
-	const collectingBody = `
+	const validate = (value: unknown): string[] => {
 		const errors = [];
-		
-		if (typeof value !== 'object' || value === null) {
+
+		if (!isObject(value)) {
 			return ['Value must be an object'];
 		}
 
 		// Check required properties
 		for (const prop of requiredProps) {
 			if (!(prop in value)) {
-				errors.push(\`Missing required property: \${prop}\`);
+				errors.push(`Missing required property: ${prop}`);
 			}
 		}
 
 		// Validate each property
 		for (const [key, validator] of Object.entries(propertyValidators)) {
 			if (key in value) {
-				const propErrors = validator.validate(value[key]);
+				const propErrors = validator.validate(
+					(value as Record<string, unknown>)[key],
+				);
 				for (const error of propErrors) {
-					errors.push(\`Property "\${key}": \${error}\`);
+					errors.push(`Property "${key}": ${error}`);
 				}
 			}
 		}
 
 		return errors;
-	`;
+	};
 
 	return {
-		validate: new Function(
-			...Object.keys(closureVars),
-			`return function validate(value) { ${collectingBody} }`,
-		)(...Object.values(closureVars)) as (value: unknown) => string[],
-		validateOrThrow: new Function(
-			...Object.keys(closureVars),
-			`return function validate(value) { ${throwingBody} }`,
-		)(...Object.values(closureVars)) as (value: unknown) => void,
-		isValid: new Function(
-			...Object.keys(closureVars),
-			`return function validate(value) { ${quickBody} }`,
-		)(...Object.values(closureVars)) as (value: unknown) => true | string,
+		validate,
+		validateOrThrow,
+		isValid,
 	};
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

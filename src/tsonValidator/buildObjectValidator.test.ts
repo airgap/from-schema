@@ -164,7 +164,7 @@ describe('buildObjectValidator', () => {
 		const schema: ObjectTsonSchema = {
 			type: 'object',
 			properties: {
-				id: { type: 'bigint' },
+				id: { type: 'bigint', maximum: 123n },
 			},
 			required: ['id'],
 		};
@@ -192,10 +192,9 @@ describe('buildObjectValidator', () => {
 			);
 		});
 
-		test('rejects invalid bigint values', () => {
+		test('rejects non-bigint values', () => {
 			const invalidValues = [
 				{ id: 'not a number' },
-				{ id: 123 }, // number instead of bigint
 				{ id: true },
 				{ id: {} },
 				{ id: [] },
@@ -205,7 +204,7 @@ describe('buildObjectValidator', () => {
 
 			for (const value of invalidValues) {
 				expect(validator.isValid(value)).toBe(
-					'Property "id": Value must be a valid bigint',
+					'Property "id": Value must be a bigint',
 				);
 				expect(validator.validate(value)).toEqual([
 					'Property "id": Value must be a bigint',
@@ -213,6 +212,18 @@ describe('buildObjectValidator', () => {
 				expect(() => validator.validateOrThrow(value)).toThrow(
 					'Property "id": Value must be a bigint',
 				);
+			}
+		});
+
+		test('rejects invalid bigint values', () => {
+			const invalidValues = [
+				{ id: 124n }, // number instead of bigint
+			];
+			const error = 'Property "id": Value must be less than or equal to 123';
+			for (const value of invalidValues) {
+				expect(validator.isValid(value)).toBe(error);
+				expect(validator.validate(value)).toEqual([error]);
+				expect(() => validator.validateOrThrow(value)).toThrow(error);
 			}
 		});
 

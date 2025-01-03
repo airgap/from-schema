@@ -13,7 +13,7 @@ export function buildBigintValidator(schema: BigIntTsonSchema): Validator {
 					try {
 						value = BigInt(value);
 					} catch {
-						throw new Error("Value must be a valid bigint");
+						throw new Error("Value must be a bigint");
 					}
 				} else {
 					throw new Error("Value must be a bigint");
@@ -29,7 +29,7 @@ export function buildBigintValidator(schema: BigIntTsonSchema): Validator {
 					try {
 						value = BigInt(value);
 					} catch {
-						return "Value must be a valid bigint";
+						return "Value must be a bigint";
 					}
 				} else {
 					return "Value must be a bigint";
@@ -47,7 +47,7 @@ export function buildBigintValidator(schema: BigIntTsonSchema): Validator {
 					try {
 						value = BigInt(value);
 					} catch {
-						errors.push("Value must be a valid bigint");
+						errors.push("Value must be a bigint");
 						return errors;
 					}
 				} else {
@@ -96,7 +96,7 @@ export function buildBigintValidator(schema: BigIntTsonSchema): Validator {
 				try {
 					value = BigInt(value);
 				} catch {
-					return "Value must be a valid bigint";
+					return "Value must be a bigint";
 				}
 			} else {
 				return "Value must be a bigint";

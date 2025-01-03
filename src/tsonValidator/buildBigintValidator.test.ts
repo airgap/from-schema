@@ -9,9 +9,7 @@ describe('buildBigintValidator', () => {
 
 		expect(validator.isValid(BigInt(123))).toBe(true);
 		expect(validator.isValid('123')).toBe(true);
-		expect(validator.isValid('not a bigint')).toBe(
-			'Value must be a valid bigint',
-		);
+		expect(validator.isValid('not a bigint')).toBe('Value must be a bigint');
 		expect(validator.isValid(123)).toBe('Value must be a bigint');
 		expect(validator.isValid(null)).toBe('Value must be a bigint');
 	});
@@ -76,7 +74,7 @@ describe('buildBigintValidator', () => {
 		});
 
 		expect(validator.validate('not a bigint')).toEqual([
-			'Value must be a valid bigint',
+			'Value must be a bigint',
 		]);
 		expect(validator.validate(123)).toEqual(['Value must be a bigint']);
 		expect(validator.validate(BigInt(99))).toEqual([
@@ -95,7 +93,7 @@ describe('buildBigintValidator', () => {
 		});
 
 		expect(() => validator.validateOrThrow('not a bigint')).toThrow(
-			'Value must be a valid bigint',
+			'Value must be a bigint',
 		);
 		expect(() => validator.validateOrThrow(123)).toThrow(
 			'Value must be a bigint',
