@@ -19,12 +19,7 @@ import { buildBigintValidator } from './buildBigintValidator';
 import { buildEnumValidator } from './buildEnumValidator';
 import { buildOneOfValidator } from './buildOneOfValidator';
 import { buildDateValidator } from './buildDateValidator';
-
-type Validator = {
-	validate: (value: unknown) => string[];
-	validateOrThrow: (value: unknown) => void;
-	isValid: (value: unknown) => true | string;
-};
+import { Validator } from '../Validator';
 
 export function buildValidator(schema: TsonSchemaOrPrimitive): Validator {
 	// Handle primitive literals
@@ -35,23 +30,21 @@ export function buildValidator(schema: TsonSchemaOrPrimitive): Validator {
 		case 'bigint': {
 			const expectedValue = schema;
 			return {
-				validate: (value: unknown) =>
-					value === expectedValue
+				validate: `(value: unknown) => 
+					value === ${JSON.stringify(expectedValue)}
 						? []
 						: [
-								`Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ${value}`,
-							],
-				validateOrThrow: (value: unknown) => {
-					if (value !== expectedValue) {
-						throw new Error(
-							`Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ${value}`,
-						);
+							'Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + value
+						]`,
+				validateOrThrow: `(value: unknown) => {
+					if (value !== ${JSON.stringify(expectedValue)}) {
+						throw new Error('Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + value);
 					}
-				},
-				isValid: (value: unknown) =>
-					value === expectedValue
+				}`,
+				isValid: `(value: unknown) =>
+					value === ${JSON.stringify(expectedValue)}
 						? true
-						: `Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ${value}`,
+						: 'Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + value`,
 			};
 		}
 	}
@@ -60,15 +53,15 @@ export function buildValidator(schema: TsonSchemaOrPrimitive): Validator {
 	if (Array.isArray(schema)) {
 		const expectedValue = schema;
 		return {
-			validate: (value: unknown) =>
-				value === expectedValue ? [] : [`Expected ${schema}, got ${value}`],
-			validateOrThrow: (value: unknown) => {
-				if (value !== expectedValue) {
-					throw new Error(`Expected ${schema}, got ${value}`);
+			validate: `(value: unknown) =>
+				value === ${JSON.stringify(expectedValue)} ? [] : ['Expected ${schema}, got ' + value]`,
+			validateOrThrow: `(value: unknown) => {
+				if (value !== ${JSON.stringify(expectedValue)}) {
+					throw new Error('Expected ${schema}, got ' + value);
 				}
-			},
-			isValid: (value: unknown) =>
-				value === expectedValue ? true : `Expected ${schema}, got ${value}`,
+			}`,
+			isValid: `(value: unknown) =>
+				value === ${JSON.stringify(expectedValue)} ? true : 'Expected ${schema}, got ' + value`,
 		};
 	}
 

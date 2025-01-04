@@ -3,57 +3,133 @@ import { Validator } from '../Validator';
 import { buildValidator } from './buildValidator';
 import { ValidationError } from './ValidationError';
 
-export function buildArrayValidator(schema: ArrayTsonSchema): Validator {
+export function buildArrayValidator(schema: ArrayTsonSchema): {
+	validate: string;
+	validateOrThrow: string;
+	isValid: string;
+} {
 	const itemValidator = buildValidator(schema.items);
 
-	const validate = (value: unknown): string[] => {
-		const errors: string[] = [];
+	// Collecting version
+	const collectingBody = `
+		function(value: unknown) {
+			const errors = [];
 
-		// Check if value is an array
-		if (!Array.isArray(value)) {
-			return ['Value must be an array'];
+			// Check if value is an array
+			if (!Array.isArray(value)) {
+				return ['Value must be an array'];
+			}
+
+			// Check minLength
+			${
+				schema.minLength !== undefined
+					? `
+			if (value.length < ${schema.minLength}) {
+				errors.push(\`Array length \${value.length} is less than minimum length ${schema.minLength}\`);
+			}
+			`
+					: ''
+			}
+
+			// Check maxLength
+			${
+				schema.maxLength !== undefined
+					? `
+			if (value.length > ${schema.maxLength}) {
+				errors.push(\`Array length \${value.length} exceeds maximum length ${schema.maxLength}\`);
+			}
+			`
+					: ''
+			}
+
+			// Validate each item
+			for (let i = 0; i < value.length; i++) {
+				const itemErrors = itemValidator.validate(value[i]);
+				if (itemErrors.length > 0) {
+					errors.push(\`Invalid item at index \${i}: \${itemErrors.join(', ')}\`);
+				}
+			}
+
+			return errors;
 		}
+	`;
 
-		// Check minLength
-		if (schema.minLength !== undefined && value.length < schema.minLength) {
-			errors.push(
-				`Array length ${value.length} is less than minimum length ${schema.minLength}`,
-			);
-		}
+	// Fast throwing version
+	const throwingBody = `
+		function(value: unknown) {
+			const errors = [];
 
-		// Check maxLength
-		if (schema.maxLength !== undefined && value.length > schema.maxLength) {
-			errors.push(
-				`Array length ${value.length} exceeds maximum length ${schema.maxLength}`,
-			);
-		}
+			if (!Array.isArray(value)) {
+				throw new Error('Value must be an array');
+			}
 
-		// Validate each item
-		for (let i = 0; i < value.length; i++) {
-			const itemErrors = itemValidator.validate(value[i]);
-			if (itemErrors.length > 0) {
-				errors.push(`Invalid item at index ${i}: ${itemErrors.join(', ')}`);
+			${
+				schema.minLength !== undefined
+					? `
+			if (value.length < ${schema.minLength}) {
+				throw new Error(\`Array length \${value.length} is less than minimum length ${schema.minLength}\`);
+			}
+			`
+					: ''
+			}
+
+			${
+				schema.maxLength !== undefined
+					? `
+			if (value.length > ${schema.maxLength}) {
+				throw new Error(\`Array length \${value.length} exceeds maximum length ${schema.maxLength}\`);
+			}
+			`
+					: ''
+			}
+
+			for (let i = 0; i < value.length; i++) {
+				itemValidator.validateOrThrow(value[i]);
 			}
 		}
+	`;
 
-		return errors;
-	};
+	// Fast single-error version
+	const quickBody = `
+		function(value: unknown) {
+			if (!Array.isArray(value)) {
+				return 'Value must be an array';
+			}
 
-	const validateOrThrow = (value: unknown): void => {
-		const errors = validate(value);
-		if (errors.length > 0) {
-			throw new ValidationError(errors.join('; '));
+			${
+				schema.minLength !== undefined
+					? `
+			if (value.length < ${schema.minLength}) {
+				return \`Array length \${value.length} is less than minimum length ${schema.minLength}\`;
+			}
+			`
+					: ''
+			}
+
+			${
+				schema.maxLength !== undefined
+					? `
+			if (value.length > ${schema.maxLength}) {
+				return \`Array length \${value.length} exceeds maximum length ${schema.maxLength}\`;
+			}
+			`
+					: ''
+			}
+
+			for (let i = 0; i < value.length; i++) {
+				const result = itemValidator.isValid(value[i]);
+				if (result !== true) {
+					return \`Invalid item at index \${i}: \${result}\`;
+				}
+			}
+
+			return true;
 		}
-	};
-
-	const isValid = (value: unknown): true | string => {
-		const errors = validate(value);
-		return errors.length === 0 ? true : errors.join('; ');
-	};
+	`;
 
 	return {
-		validate,
-		validateOrThrow,
-		isValid,
+		validate: collectingBody,
+		validateOrThrow: throwingBody,
+		isValid: quickBody,
 	};
 }

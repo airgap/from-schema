@@ -1,77 +1,81 @@
 import { NumberTsonSchema } from '../tson/NumberTsonSchema';
 import { Validator } from '../Validator';
 
-export function buildNumberValidator(schema: NumberTsonSchema): Validator {
+export function buildNumberValidator(schema: NumberTsonSchema): {
+	validate: string;
+	validateOrThrow: string;
+	isValid: string;
+} {
 	// If const is set, only validate against that value
 	if ('const' in schema) {
 		const constValue = schema.const;
 
 		// Fast throwing version
 		const throwingBody = `
-			if (typeof value !== "number") {
-				if (typeof value === "string") {
-					const num = Number(value);
-					if (!Number.isNaN(num)) {
-						value = num;
+			function(value: unknown) {
+				if (typeof value !== "number") {
+					if (typeof value === "string") {
+						const num = Number(value);
+						if (!Number.isNaN(num)) {
+							value = num;
+						} else {
+							throw new Error("Value must be a valid number");
+						}
 					} else {
-						throw new Error("Value must be a valid number");
+						throw new Error("Value must be a number");
 					}
-				} else {
-					throw new Error("Value must be a number");
 				}
+				if (value !== ${constValue}) throw new Error("Expected ${constValue}, got " + value);
 			}
-			if (value !== ${constValue}) throw new Error("Expected ${constValue}, got " + value);
 		`;
 
 		// Fast single-error version
 		const quickBody = `
-			if (typeof value !== "number") {
-				if (typeof value === "string") {
-					const num = Number(value);
-					if (!Number.isNaN(num)) {
-						value = num;
+			function(value: unknown) {
+				if (typeof value !== "number") {
+					if (typeof value === "string") {
+						const num = Number(value);
+						if (!Number.isNaN(num)) {
+							value = num;
+						} else {
+							return "Value must be a valid number";
+						}
 					} else {
-						return "Value must be a valid number";
+						return "Value must be a number";
 					}
-				} else {
-					return "Value must be a number";
 				}
+				if (value !== ${constValue}) return "Expected ${constValue}, got " + value;
+				return true;
 			}
-			if (value !== ${constValue}) return "Expected ${constValue}, got " + value;
-			return true;
 		`;
 
 		// Collecting version
 		const collectingBody = `
-			const errors = [];
-			if (typeof value !== "number") {
-				if (typeof value === "string") {
-					const num = Number(value);
-					if (!Number.isNaN(num)) {
-						value = num;
+			function(value: unknown) {
+				const errors = [];
+				if (typeof value !== "number") {
+					if (typeof value === "string") {
+						const num = Number(value);
+						if (!Number.isNaN(num)) {
+							value = num;
+						} else {
+							errors.push("Value must be a valid number");
+							return errors;
+						}
 					} else {
-						errors.push("Value must be a valid number");
+						errors.push("Value must be a number");
 						return errors;
 					}
-				} else {
-					errors.push("Value must be a number");
-					return errors;
 				}
+				if (value !== ${constValue}) errors.push("Expected ${constValue}, got " + value);
+				return errors;
 			}
-			if (value !== ${constValue}) errors.push("Expected ${constValue}, got " + value);
-			return errors;
 		`;
 
 		return {
-			validate: new Function('value', collectingBody) as (
-				value: unknown,
-			) => string[],
-			validateOrThrow: new Function('value', throwingBody) as (
-				value: unknown,
-			) => void,
-			isValid: new Function('value', quickBody) as (
-				value: unknown,
-			) => true | string,
+			validate: collectingBody,
+			validateOrThrow: throwingBody,
+			isValid: quickBody,
 		};
 	}
 
@@ -106,68 +110,64 @@ export function buildNumberValidator(schema: NumberTsonSchema): Validator {
 		
 		${
 			schema.type === 'integer'
-				? `
-		if (!Number.isInteger(value)) {
-			return "Value must be an integer";
-		}
-		`
+				? `if (!Number.isInteger(value)) {
+				return "Value must be an integer";
+			}`
 				: ''
 		}
 	`;
 
 	// Fast throwing version
 	const throwingBody = `
-		${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
-		${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n		')}
+		function(value: unknown) {
+			${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
+			${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n            ')}
+		}
 	`;
 
 	// Fast single-error version
 	const quickBody = `
-		${typeCheck}
-		${checks.join('\n		')}
-		return true;
+		function(value: unknown) {
+			${typeCheck}
+			${checks.join('\n            ')}
+			return true;
+		}
 	`;
 
 	// Collecting version
 	const collectingBody = `
-		const errors = [];
-		if (typeof value !== "number") {
-			if (typeof value === "string") {
-				const num = Number(value);
-				if (!Number.isNaN(num)) {
-					value = num;
+		function(value: unknown) {
+			const errors = [];
+			if (typeof value !== "number") {
+				if (typeof value === "string") {
+					const num = Number(value);
+					if (!Number.isNaN(num)) {
+						value = num;
+					} else {
+						errors.push("Value must be a valid number");
+						return errors;
+					}
 				} else {
-					errors.push("Value must be a valid number");
+					errors.push("Value must be a number");
 					return errors;
 				}
-			} else {
-				errors.push("Value must be a number");
-				return errors;
 			}
+			
+			${
+				schema.type === 'integer'
+					? `if (!Number.isInteger(value)) {
+					errors.push("Value must be an integer");
+				}`
+					: ''
+			}
+			${checks.map((check) => check.replace(/return "(.*?)";/, 'errors.push("$1");')).join('\n            ')}
+			return errors;
 		}
-		
-		${
-			schema.type === 'integer'
-				? `
-		if (!Number.isInteger(value)) {
-			errors.push("Value must be an integer");
-		}
-		`
-				: ''
-		}
-		${checks.map((check) => check.replace(/return "(.*?)";/, 'errors.push("$1");')).join('\n        ')}
-		return errors;
 	`;
 
 	return {
-		validate: new Function('value', collectingBody) as (
-			value: unknown,
-		) => string[],
-		validateOrThrow: new Function('value', throwingBody) as (
-			value: unknown,
-		) => void,
-		isValid: new Function('value', quickBody) as (
-			value: unknown,
-		) => true | string,
+		validate: collectingBody,
+		validateOrThrow: throwingBody,
+		isValid: quickBody,
 	};
 }

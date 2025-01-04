@@ -2,6 +2,41 @@ import { buildBigintValidator } from './buildBigintValidator';
 import { BigIntTsonSchema } from '../tson/BigIntTsonSchema';
 
 describe('buildBigintValidator', () => {
+	describe('const validation', () => {
+		const schema: BigIntTsonSchema = {
+			type: 'bigint',
+			const: BigInt(123),
+		};
+		const validator = buildBigintValidator(schema);
+
+		test('accepts exact const value', () => {
+			expect(validator.isValid(BigInt(123))).toBe(true);
+			expect(validator.isValid('123')).toBe(true);
+			expect(validator.validate(BigInt(123))).toEqual([]);
+			expect(() => validator.validateOrThrow(BigInt(123))).not.toThrow();
+		});
+
+		test('rejects different values', () => {
+			expect(validator.isValid(BigInt(124))).toBe('Expected 123, got 124');
+			expect(validator.validate(BigInt(124))).toEqual([
+				'Expected 123, got 124',
+			]);
+			expect(() => validator.validateOrThrow(BigInt(124))).toThrow(
+				'Expected 123, got 124',
+			);
+		});
+
+		test('rejects non-bigint values', () => {
+			expect(validator.isValid('not a bigint')).toBe('Value must be a bigint');
+			expect(validator.validate('not a bigint')).toEqual([
+				'Value must be a bigint',
+			]);
+			expect(() => validator.validateOrThrow('not a bigint')).toThrow(
+				'Value must be a bigint',
+			);
+		});
+	});
+
 	test('validates bigint type', () => {
 		const validator = buildBigintValidator({
 			type: 'bigint',

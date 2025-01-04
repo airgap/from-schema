@@ -24,51 +24,54 @@ const FORMAT_PATTERNS = {
 		/^(?:(?:[^?*+{}()[\]\\|/]|\\.|\[(?:[^\]\\]|\\.)*\]|\((?:[^)\\]|\\.)*\)|\{(?:[^}\\]|\\.)*\})+|[?*+{}()[\]\\|/])$/,
 } as const;
 
-export function buildStringValidator(schema: StringTsonSchema): Validator {
+export function buildStringValidator(schema: StringTsonSchema): {
+	validate: string;
+	validateOrThrow: string;
+	isValid: string;
+} {
 	// If const is set, only validate against that value
 	if ('const' in schema) {
 		const constValue = schema.const;
 
 		// Fast throwing version
 		const throwingBody = `
-			if (typeof value !== "string") throw new Error("Value must be a string");
-			if (value !== "${constValue}") throw new Error('Expected "${constValue}", got "' + value + '"');
-	 `;
+			function(value: unknown) {
+				if (typeof value !== "string") throw new Error("Value must be a string");
+				if (value !== "${constValue}") throw new Error('Expected "${constValue}", got "' + value + '"');
+			}
+		`;
 
 		// Fast single-error version
 		const quickBody = `
-			if (typeof value !== "string") return "Value must be a string";
-			if (value !== "${constValue}") return 'Expected "${constValue}", got "' + value + '"';
-			return true;
-	 `;
+			function(value: unknown) {
+				if (typeof value !== "string") return "Value must be a string";
+				if (value !== "${constValue}") return 'Expected "${constValue}", got "' + value + '"';
+				return true;
+			}
+		`;
 
-		// Collecting version - Only add const check if value is a string
+		// Collecting version
 		const collectingBody = `
-			const errors = [];
-			if (typeof value !== "string") {
-				errors.push("Value must be a string");
+			function(value: unknown) {
+				const errors = [];
+				if (typeof value !== "string") {
+					errors.push("Value must be a string");
+					return errors;
+				}
+				if (value !== "${constValue}") errors.push('Expected "${constValue}", got "' + value + '"');
 				return errors;
 			}
-			if (value !== "${constValue}") errors.push('Expected "${constValue}", got "' + value + '"');
-			return errors;
-	 `;
+		`;
 
 		return {
-			validate: new Function('value', collectingBody) as (
-				value: unknown,
-			) => string[],
-			validateOrThrow: new Function('value', throwingBody) as (
-				value: unknown,
-			) => void,
-			isValid: new Function('value', quickBody) as (
-				value: unknown,
-			) => true | string,
+			validate: collectingBody,
+			validateOrThrow: throwingBody,
+			isValid: quickBody,
 		};
 	}
 
 	// Original validation logic for non-const strings
 	const checks: string[] = [];
-	const closureVars: Record<string, any> = {};
 
 	if (schema.minLength !== undefined) {
 		checks.push(
@@ -90,12 +93,10 @@ export function buildStringValidator(schema: StringTsonSchema): Validator {
 			const flags = pattern.toString().match(/\/([gimuy]*)$/)?.[1] || '';
 			const patternStr = pattern
 				.toString()
-				.slice(1, -1 - (flags.length ? flags.length + 1 : 0)) // Remove leading/trailing slashes and flags
-				.replace(/\\/g, '\\\\') // Escape backslashes first
-				.replace(/"/g, '\\"') // Then escape quotes
-				.replace(/\$/g, '\\$'); // Escape dollar signs
-			console.log('Processed pattern:', patternStr);
-			console.log('Format:', schema.format);
+				.slice(1, -1 - (flags.length ? flags.length + 1 : 0))
+				.replace(/\\/g, '\\\\')
+				.replace(/"/g, '\\"')
+				.replace(/\$/g, '\\$');
 			checks.push(
 				`if (!new RegExp("${patternStr}", "${flags}").test(value)) return "String must be a valid ${schema.format} format";`,
 			);
@@ -103,79 +104,46 @@ export function buildStringValidator(schema: StringTsonSchema): Validator {
 	}
 
 	if (schema.pattern !== undefined) {
-		// Pre-compile the regex and close over it to avoid runtime regex compilation
-		const regex = new RegExp(schema.pattern);
-		closureVars.regex = regex;
 		checks.push(
-			`if (!regex.test(value)) ` +
+			`if (!new RegExp("${schema.pattern}").test(value)) ` +
 				`return "String must match pattern: ${schema.pattern}";`,
 		);
 	}
 
 	// Fast throwing version
 	const throwingBody = `
-        if (typeof value !== "string") throw new Error("Value must be a string");
-        ${checks.join('\n        ')}
-    `;
+		function(value: unknown) {
+			if (typeof value !== "string") throw new Error("Value must be a string");
+			${checks.join('\n			')}
+		}
+	`;
 
 	// Fast single-error version
 	const quickBody = `
-        if (typeof value !== "string") return "Value must be a string";
-        ${checks.join('\n        ')}
-        return true;
-    `;
+		function(value: unknown) {
+			if (typeof value !== "string") return "Value must be a string";
+			${checks.join('\n			')}
+			return true;
+		}
+	`;
 
 	// Collecting version
 	const collectingBody = `
-        const errors = [];
-        if (typeof value !== "string") errors.push("Value must be a string");
-        ${checks
-					.map((check) => {
-						return check.replace('return', 'errors.push(').replace(/;$/, ');');
-					})
-					.join('\n        ')}
-        return errors;
-    `;
-
-	if (Object.keys(closureVars).length > 0) {
-		const throwingValidator = new Function(
-			...Object.keys(closureVars),
-			`return function validate(value) { ${throwingBody} }`,
-		)(...Object.values(closureVars));
-
-		const quickValidator = new Function(
-			...Object.keys(closureVars),
-			`return function validate(value) { ${quickBody} }`,
-		)(...Object.values(closureVars));
-
-		const collectingValidator = new Function(
-			...Object.keys(closureVars),
-			`return function validate(value) { ${collectingBody} }`,
-		)(...Object.values(closureVars));
-
-		return {
-			validate: collectingValidator as (value: unknown) => string[],
-			validateOrThrow: throwingValidator as (value: unknown) => void,
-			isValid: quickValidator as (value: unknown) => true | string,
-		};
-	}
-
-	// Before creating the Function
-	console.log('=== Generated Function Bodies ===');
-	console.log('Throwing body:', throwingBody);
-	console.log('Quick body:', quickBody);
-	console.log('Collecting body:', collectingBody);
-	console.log('Closure vars:', closureVars);
+		function(value: unknown) {
+			const errors = [];
+			if (typeof value !== "string") errors.push("Value must be a string");
+			${checks
+				.map((check) =>
+					check.replace('return', 'errors.push(').replace(/;$/, ');'),
+				)
+				.join('\n			')}
+			return errors;
+		}
+	`;
 
 	return {
-		validate: new Function('value', collectingBody) as (
-			value: unknown,
-		) => string[],
-		validateOrThrow: new Function('value', throwingBody) as (
-			value: unknown,
-		) => void,
-		isValid: new Function('value', quickBody) as (
-			value: unknown,
-		) => true | string,
+		validate: collectingBody,
+		validateOrThrow: throwingBody,
+		isValid: quickBody,
 	};
 }

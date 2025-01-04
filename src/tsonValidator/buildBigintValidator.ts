@@ -1,74 +1,52 @@
 import { BigIntTsonSchema } from '../tson/BigIntTsonSchema';
-import { Validator } from '../Validator';
 
-export function buildBigintValidator(schema: BigIntTsonSchema): Validator {
+export function buildBigintValidator(schema: BigIntTsonSchema): {
+	validate: string;
+	validateOrThrow: string;
+	isValid: string;
+} {
 	// If const is set, only validate against that value
 	if ('const' in schema) {
 		const constValue = schema.const.toString();
 
 		// Fast throwing version
 		const throwingBody = `
-			if (typeof value !== "bigint") {
-				if (typeof value === "string") {
-					try {
-						value = BigInt(value);
-					} catch {
-						throw new Error("Value must be a bigint");
-					}
-				} else {
+			function(value: unknown) {
+				if (typeof value !== "bigint") {
 					throw new Error("Value must be a bigint");
 				}
+				if (value !== BigInt("${constValue}")) throw new Error("Expected ${constValue}, got " + value);
 			}
-			if (value !== BigInt("${constValue}")) throw new Error("Expected ${constValue}, got " + value);
 		`;
 
 		// Fast single-error version
 		const quickBody = `
-			if (typeof value !== "bigint") {
-				if (typeof value === "string") {
-					try {
-						value = BigInt(value);
-					} catch {
-						return "Value must be a bigint";
-					}
-				} else {
+			function(value: unknown) {
+				if (typeof value !== "bigint") {
 					return "Value must be a bigint";
 				}
+				if (value !== BigInt("${constValue}")) return "Expected ${constValue}, got " + value;
+				return true;
 			}
-			if (value !== BigInt("${constValue}")) return "Expected ${constValue}, got " + value;
-			return true;
 		`;
 
 		// Collecting version
 		const collectingBody = `
-			const errors = [];
-			if (typeof value !== "bigint") {
-				if (typeof value === "string") {
-					try {
-						value = BigInt(value);
-					} catch {
-						errors.push("Value must be a bigint");
-						return errors;
-					}
-				} else {
+			function(value: unknown) {
+				const errors = [];
+				if (typeof value !== "bigint") {
 					errors.push("Value must be a bigint");
 					return errors;
 				}
+				if (value !== BigInt("${constValue}")) errors.push("Expected ${constValue}, got " + value);
+				return errors;
 			}
-			if (value !== BigInt("${constValue}")) errors.push("Expected ${constValue}, got " + value);
-			return errors;
 		`;
 
 		return {
-			validate: new Function('value', collectingBody) as (
-				value: unknown,
-			) => string[],
-			validateOrThrow: new Function('value', throwingBody) as (
-				value: unknown,
-			) => void,
-			isValid: new Function('value', quickBody) as (
-				value: unknown,
-			) => true | string,
+			validate: collectingBody,
+			validateOrThrow: throwingBody,
+			isValid: quickBody,
 		};
 	}
 
@@ -92,48 +70,40 @@ export function buildBigintValidator(schema: BigIntTsonSchema): Validator {
 	// Base validation logic for bigint type checking
 	const typeCheck = `
 		if (typeof value !== "bigint") {
-			if (typeof value === "string") {
-				try {
-					value = BigInt(value);
-				} catch {
-					return "Value must be a bigint";
-				}
-			} else {
-				return "Value must be a bigint";
-			}
+			return "Value must be a bigint";
 		}
 	`;
 
 	// Fast throwing version
 	const throwingBody = `
-		${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
-		${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n        ')}
+		function(value: unknown) {
+			${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
+			${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n			')}
+		}
 	`;
 
 	// Fast single-error version
 	const quickBody = `
-		${typeCheck}
-		${checks.join('\n        ')}
-		return true;
+		function(value: unknown) {
+			${typeCheck}
+			${checks.join('\n			')}
+			return true;
+		}
 	`;
 
 	// Collecting version
 	const collectingBody = `
-		const errors = [];
-		${typeCheck.replace(/return "(.*?)";/g, 'errors.push("$1");')}
-		${checks.map((check) => check.replace(/return "(.*?)";/g, 'errors.push("$1");')).join('\n        ')}
-		return errors;
+		function(value: unknown) {
+			const errors = [];
+			${typeCheck.replace(/return "(.*?)";/g, 'errors.push("$1");')}
+			${checks.map((check) => check.replace(/return "(.*?)";/g, 'errors.push("$1");')).join('\n			')}
+			return errors;
+		}
 	`;
 
 	return {
-		validate: new Function('value', collectingBody) as (
-			value: unknown,
-		) => string[],
-		validateOrThrow: new Function('value', throwingBody) as (
-			value: unknown,
-		) => void,
-		isValid: new Function('value', quickBody) as (
-			value: unknown,
-		) => true | string,
+		validate: collectingBody,
+		validateOrThrow: throwingBody,
+		isValid: quickBody,
 	};
 }

@@ -1,6 +1,7 @@
 import { EnumTsonSchema } from '../tson/EnumTsonSchema';
+import { Validator } from '../Validator';
 
-export function buildEnumValidator(schema: EnumTsonSchema) {
+export function buildEnumValidator(schema: EnumTsonSchema): Validator {
 	const hasDefault = 'default' in schema;
 	const defaultValue = hasDefault ? schema.default : undefined;
 
@@ -25,53 +26,29 @@ export function buildEnumValidator(schema: EnumTsonSchema) {
     `
 		: '';
 
-	const validationBody = `{
-        return (function() {
+	return {
+		isValid: `(value: unknown) => {
             ${defaultCheck}
             ${typeCheck}
             ${enumCheck}
             return true;
-        })();
-    }`;
+        }`,
 
-	const throwingBody = `{
-        const result = (function() {
+		validateOrThrow: `(value: unknown) => {
             if (value === undefined && ${hasDefault}) {
                 value = ${JSON.stringify(defaultValue)};
                 return true;
             }
             ${typeCheck}
             ${enumCheck}
-            return true;
-        })();
-        if (result !== true) {
-            throw new Error(result);
-        }
-        return value;
-    }`;
+            return value;
+        }`,
 
-	const validateBody = `{
-        const result = (function() {
+		validate: `(value: unknown) => {
             ${defaultCheck}
             ${typeCheck}
             ${enumCheck}
-            return true;
-        })();
-        if (result !== true) {
-            return [result];
-        }
-        return [];
-    }`;
-
-	return {
-		validate: new Function('value', validateBody) as (
-			value: unknown,
-		) => string[],
-		validateOrThrow: new Function('value', throwingBody) as (
-			value: unknown,
-		) => string,
-		isValid: new Function('value', validationBody) as (
-			value: unknown,
-		) => true | string,
+            return [];
+        }`,
 	};
 }

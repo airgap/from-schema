@@ -4,6 +4,7 @@ export * from './generic';
 export * from './MongoCollectionModel';
 export * from './WebSocketRoute';
 export * from './bson2json';
+export * from './isObject';
 export * from './jsonToType/jsonToType';
 export * from './json';
 export * from './bson';

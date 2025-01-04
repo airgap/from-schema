@@ -1,5 +1,5 @@
 export type Validator = {
-	validate: (value: unknown) => string[];
-	validateOrThrow: (value: unknown) => void;
-	isValid: (value: unknown) => true | string;
+	validate: string; //(value: unknown) => string[];
+	validateOrThrow: string; //(value: unknown) => void;
+	isValid: string; //(value: unknown) => true | string;
 };

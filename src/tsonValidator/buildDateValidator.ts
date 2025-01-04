@@ -6,78 +6,37 @@ export const buildDateValidator = (schema: DateTsonSchema): Validator => {
 	if ('const' in schema) {
 		const constTime = schema.const.getTime();
 
-		// Fast throwing version
-		const throwingBody = `
-            if (!(value instanceof Date)) {
-                if (typeof value === "string") {
-                    const date = new Date(value);
-                    if (!isNaN(date.getTime())) {
-                        value = date;
-                    } else {
-                        throw new Error("Value must be a valid Date");
-                    }
-                } else {
-                    throw new Error("Value must be a Date");
-                }
-            }
-            if (isNaN(value.getTime())) throw new Error("Value must be a valid Date");
-            if (value.getTime() !== ${constTime}) throw new Error('Expected ' + new Date(${constTime}).toISOString() + ', got ' + value.toISOString());
-        `;
-
-		// Fast single-error version
-		const quickBody = `
-            if (!(value instanceof Date)) {
-                if (typeof value === "string") {
-                    const date = new Date(value);
-                    if (!isNaN(date.getTime())) {
-                        value = date;
-                    } else {
-                        return "Value must be a valid Date";
-                    }
-                } else {
-                    return "Value must be a Date";
-                }
-            }
-            if (isNaN(value.getTime())) return "Value must be a valid Date";
-            if (value.getTime() !== ${constTime}) return 'Expected ' + new Date(${constTime}).toISOString() + ', got ' + value.toISOString();
-            return true;
-        `;
-
-		// Collecting version
-		const collectingBody = `
-            const errors = [];
-            if (!(value instanceof Date)) {
-                if (typeof value === "string") {
-                    const date = new Date(value);
-                    if (!isNaN(date.getTime())) {
-                        value = date;
-                    } else {
-                        errors.push("Value must be a valid Date");
-                        return errors;
-                    }
-                } else {
-                    errors.push("Value must be a Date");
-                    return errors;
-                }
-            }
-            if (isNaN(value.getTime())) {
-                errors.push("Value must be a valid Date");
-                return errors;
-            }
-            if (value.getTime() !== ${constTime}) errors.push('Expected ' + new Date(${constTime}).toISOString() + ', got ' + value.toISOString());
-            return errors;
-        `;
-
 		return {
-			validate: new Function('value', collectingBody) as (
-				value: unknown,
-			) => string[],
-			validateOrThrow: new Function('value', throwingBody) as (
-				value: unknown,
-			) => void,
-			isValid: new Function('value', quickBody) as (
-				value: unknown,
-			) => true | string,
+			validateOrThrow: `(value: unknown) => {
+				if (!(value instanceof Date)) {
+					throw new Error("Value must be a Date");
+				}
+				if (isNaN(value.getTime())) throw new Error("Value must be a valid Date");
+				if (value.getTime() !== ${constTime}) throw new Error('Expected ' + new Date(${constTime}).toISOString() + ', got ' + value.toISOString());
+			}`,
+
+			isValid: `(value: unknown) => {
+				if (!(value instanceof Date)) {
+					return "Value must be a Date";
+				}
+				if (isNaN(value.getTime())) return "Value must be a valid Date";
+				if (value.getTime() !== ${constTime}) return 'Expected ' + new Date(${constTime}).toISOString() + ', got ' + value.toISOString();
+				return true;
+			}`,
+
+			validate: `(value: unknown) => {
+				const errors = [];
+				if (!(value instanceof Date)) {
+					errors.push("Value must be a Date");
+					return errors;
+				}
+				if (isNaN(value.getTime())) {
+					errors.push("Value must be a valid Date");
+					return errors;
+				}
+				if (value.getTime() !== ${constTime}) errors.push('Expected ' + new Date(${constTime}).toISOString() + ', got ' + value.toISOString());
+				return errors;
+			}`,
 		};
 	}
 
@@ -101,68 +60,36 @@ export const buildDateValidator = (schema: DateTsonSchema): Validator => {
 
 	// Type check
 	const typeCheck = `
-        if (!(value instanceof Date)) {
-            if (typeof value === "string") {
-                const date = new Date(value);
-                if (!isNaN(date.getTime())) {
-                    value = date;
-                } else {
-                    return "Value must be a valid Date";
-                }
-            } else {
-                return "Value must be a Date";
-            }
-        }
-        if (isNaN(value.getTime())) return "Value must be a valid Date";
-    `;
-
-	// Fast throwing version
-	const throwingBody = `
-        ${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
-        ${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n        ')}
-    `;
-
-	// Fast single-error version
-	const quickBody = `
-        ${typeCheck}
-        ${checks.join('\n        ')}
-        return true;
-    `;
-
-	// Collecting version
-	const collectingBody = `
-        const errors = [];
-        if (!(value instanceof Date)) {
-            if (typeof value === "string") {
-                const date = new Date(value);
-                if (!isNaN(date.getTime())) {
-                    value = date;
-                } else {
-                    errors.push("Value must be a valid Date");
-                    return errors;
-                }
-            } else {
-                errors.push("Value must be a Date");
-                return errors;
-            }
-        }
-        if (isNaN(value.getTime())) {
-            errors.push("Value must be a valid Date");
-            return errors;
-        }
-        ${checks.map((check) => check.replace(/return "(.*?)";/, 'errors.push("$1");')).join('\n        ')}
-        return errors;
-    `;
+		if (!(value instanceof Date)) {
+			return "Value must be a Date";
+		}
+		if (isNaN(value.getTime())) return "Value must be a valid Date";
+	`;
 
 	return {
-		validate: new Function('value', collectingBody) as (
-			value: unknown,
-		) => string[],
-		validateOrThrow: new Function('value', throwingBody) as (
-			value: unknown,
-		) => void,
-		isValid: new Function('value', quickBody) as (
-			value: unknown,
-		) => true | string,
+		validateOrThrow: `(value: unknown) => {
+			${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
+			${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n			')}
+		}`,
+
+		isValid: `(value: unknown) => {
+			${typeCheck}
+			${checks.join('\n			')}
+			return true;
+		}`,
+
+		validate: `(value: unknown) => {
+			const errors = [];
+			if (!(value instanceof Date)) {
+				errors.push("Value must be a Date");
+				return errors;
+			}
+			if (isNaN(value.getTime())) {
+				errors.push("Value must be a valid Date");
+				return errors;
+			}
+			${checks.map((check) => check.replace(/return "(.*?)";/, 'errors.push("$1");')).join('\n			')}
+			return errors;
+		}`,
 	};
 };
