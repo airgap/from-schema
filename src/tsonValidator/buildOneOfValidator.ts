@@ -7,19 +7,18 @@ export function buildOneOfValidator(schema: OneOfTsonSchema): {
 	validateOrThrow: string;
 	isValid: string;
 } {
-	const validators = schema.oneOf.map((subSchema) => buildValidator(subSchema));
-	const closureVars: Record<string, any> = {
-		validators,
-	};
+	const validators = JSON.stringify(
+		schema.oneOf.map((subSchema) => buildValidator(subSchema)),
+	);
 
 	const ERROR_MESSAGE = 'Value must match one of the allowed schemas';
 
 	// Fast throwing version
 	const throwingBody = `
-        function(value: unknown) {
+        function(value: unknown): void {
             let anyMatch = false;
             
-            for (const validator of validators) {
+            for (const validator of ${validators}) {
                 try {
                     validator.validateOrThrow(value);
                     anyMatch = true;
@@ -37,10 +36,10 @@ export function buildOneOfValidator(schema: OneOfTsonSchema): {
 
 	// Fast single-error version
 	const quickBody = `
-        function(value: unknown) {
+        function(value: unknown): true | "${ERROR_MESSAGE}" {
             let anyMatch = false;
             
-            for (const validator of validators) {
+            for (const validator of ${validators}) {
                 const result = validator.isValid(value);
                 if (result === true) {
                     anyMatch = true;
@@ -54,11 +53,11 @@ export function buildOneOfValidator(schema: OneOfTsonSchema): {
 
 	// Collecting version
 	const collectingBody = `
-        function(value: unknown) {
+        function(value: unknown): string[] {
             let anyMatch = false;
             let allErrors = [];
             
-            for (const validator of validators) {
+            for (const validator of ${validators}) {
                 const errors = validator.validate(value);
                 if (errors.length === 0) {
                     anyMatch = true;
