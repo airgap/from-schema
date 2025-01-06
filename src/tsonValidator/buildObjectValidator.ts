@@ -1,11 +1,11 @@
 import { isObject } from '../isObject';
 import { ObjectTsonSchema } from '../tson/ObjectTsonSchema';
 import { TsonSchema } from '../tson/TsonSchema';
-import { Validator } from '../Validator';
+import { ProtoValidator } from '../ProtoValidator';
 import { buildValidator } from './buildValidator';
 
-export function buildObjectValidator(schema: ObjectTsonSchema): Validator {
-	const propertyValidators: Record<string, Validator> = {};
+export function buildObjectValidator(schema: ObjectTsonSchema): ProtoValidator {
+	const propertyValidators: Record<string, ProtoValidator> = {};
 	let throwValidators = '';
 	let isValidValidators = '';
 	let collectingValidators = '';

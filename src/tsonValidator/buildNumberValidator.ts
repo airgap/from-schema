@@ -1,5 +1,5 @@
 import { NumberTsonSchema } from '../tson/NumberTsonSchema';
-import { Validator } from '../Validator';
+import { ProtoValidator } from '../ProtoValidator';
 
 export function buildNumberValidator(schema: NumberTsonSchema): {
 	validate: string;

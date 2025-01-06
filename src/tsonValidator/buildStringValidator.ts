@@ -1,5 +1,5 @@
 import { StringTsonSchema } from '../tson/StringTsonSchema';
-import { Validator } from '../Validator';
+import { ProtoValidator } from '../ProtoValidator';
 
 // Add format regex patterns
 const FORMAT_PATTERNS = {

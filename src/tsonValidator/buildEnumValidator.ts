@@ -1,7 +1,7 @@
 import { EnumTsonSchema } from '../tson/EnumTsonSchema';
-import { Validator } from '../Validator';
+import { ProtoValidator } from '../ProtoValidator';
 
-export function buildEnumValidator(schema: EnumTsonSchema): Validator {
+export function buildEnumValidator(schema: EnumTsonSchema): ProtoValidator {
 	const hasDefault = 'default' in schema;
 	const defaultValue = hasDefault ? schema.default : undefined;
 

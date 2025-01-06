@@ -1,7 +1,9 @@
 import { BooleanTsonSchema } from '../tson/BooleanTsonSchema';
-import { Validator } from '../Validator';
+import { ProtoValidator } from '../ProtoValidator';
 
-export function buildBooleanValidator(schema: BooleanTsonSchema): Validator {
+export function buildBooleanValidator(
+	schema: BooleanTsonSchema,
+): ProtoValidator {
 	// If const is set, only validate against that value
 	if ('const' in schema) {
 		const constValue = schema.const;

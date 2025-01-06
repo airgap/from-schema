@@ -1,5 +1,5 @@
 import { ArrayTsonSchema } from '../tson/ArrayTsonSchema';
-import { Validator } from '../Validator';
+import { ProtoValidator } from '../ProtoValidator';
 import { buildValidator } from './buildValidator';
 import { ValidationError } from './ValidationError';
 

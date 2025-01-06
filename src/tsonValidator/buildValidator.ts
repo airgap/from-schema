@@ -19,9 +19,9 @@ import { buildBigintValidator } from './buildBigintValidator';
 import { buildEnumValidator } from './buildEnumValidator';
 import { buildOneOfValidator } from './buildOneOfValidator';
 import { buildDateValidator } from './buildDateValidator';
-import { Validator } from '../Validator';
+import { ProtoValidator } from '../ProtoValidator';
 
-export function buildValidator(schema: TsonSchemaOrPrimitive): Validator {
+export function buildValidator(schema: TsonSchemaOrPrimitive): ProtoValidator {
 	// Handle primitive literals
 	switch (typeof schema) {
 		case 'string':

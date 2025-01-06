@@ -1,7 +1,7 @@
 import { DateTsonSchema } from '../tson/DateTsonSchema';
-import { Validator } from '../Validator';
+import { ProtoValidator } from '../ProtoValidator';
 
-export const buildDateValidator = (schema: DateTsonSchema): Validator => {
+export const buildDateValidator = (schema: DateTsonSchema): ProtoValidator => {
 	// If const is set, only validate against that value
 	if ('const' in schema) {
 		const constTime = schema.const.getTime();

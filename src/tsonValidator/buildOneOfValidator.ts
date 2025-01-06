@@ -1,6 +1,6 @@
 import { OneOfTsonSchema } from '../tson/OneOfTsonSchema';
 import { buildValidator } from './buildValidator';
-import { Validator } from '../Validator';
+import { ProtoValidator } from '../ProtoValidator';
 
 export function buildOneOfValidator(schema: OneOfTsonSchema): {
 	validate: string;
