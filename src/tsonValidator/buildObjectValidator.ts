@@ -21,7 +21,7 @@ export function buildObjectValidator(schema: ObjectTsonSchema): ProtoValidator {
 	const requiredProps = 'required' in schema ? schema.required : [];
 
 	return {
-		validateOrThrow: `(value: unknown) => {
+		validateOrThrow: `(value: unknown): void => {
 			if (!isObject(value)) {
 				throw new Error('Value must be an object');
 			}
@@ -43,7 +43,7 @@ export function buildObjectValidator(schema: ObjectTsonSchema): ProtoValidator {
 			}
 		}`,
 
-		isValid: `(value: unknown) => {
+		isValid: `(value: unknown): true | string => {
 			if (!isObject(value)) {
 				return 'Value must be an object';
 			}
@@ -66,7 +66,7 @@ export function buildObjectValidator(schema: ObjectTsonSchema): ProtoValidator {
 			return true;
 		}`,
 
-		validate: `(value: unknown) => {
+		validate: `(value: unknown): string[] => {
 			const errors = [];
 
 			if (!isObject(value)) {

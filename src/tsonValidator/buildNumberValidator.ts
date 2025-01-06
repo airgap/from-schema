@@ -12,7 +12,7 @@ export function buildNumberValidator(schema: NumberTsonSchema): {
 
 		// Fast throwing version
 		const throwingBody = `
-			function(value: unknown) {
+			function(value: unknown): void {
 				if (typeof value !== "number") {
 					if (typeof value === "string") {
 						const num = Number(value);
@@ -31,7 +31,7 @@ export function buildNumberValidator(schema: NumberTsonSchema): {
 
 		// Fast single-error version
 		const quickBody = `
-			function(value: unknown) {
+			function(value: unknown): true | string {
 				if (typeof value !== "number") {
 					if (typeof value === "string") {
 						const num = Number(value);
@@ -51,7 +51,7 @@ export function buildNumberValidator(schema: NumberTsonSchema): {
 
 		// Collecting version
 		const collectingBody = `
-			function(value: unknown) {
+			function(value: unknown): string[] {
 				const errors = [];
 				if (typeof value !== "number") {
 					if (typeof value === "string") {
@@ -119,7 +119,7 @@ export function buildNumberValidator(schema: NumberTsonSchema): {
 
 	// Fast throwing version
 	const throwingBody = `
-		function(value: unknown) {
+		function(value: unknown): void {
 			${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
 			${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n            ')}
 		}
@@ -127,7 +127,7 @@ export function buildNumberValidator(schema: NumberTsonSchema): {
 
 	// Fast single-error version
 	const quickBody = `
-		function(value: unknown) {
+		function(value: unknown): true | string {
 			${typeCheck}
 			${checks.join('\n            ')}
 			return true;
@@ -136,7 +136,7 @@ export function buildNumberValidator(schema: NumberTsonSchema): {
 
 	// Collecting version
 	const collectingBody = `
-		function(value: unknown) {
+		function(value: unknown): string[] {
 			const errors = [];
 			if (typeof value !== "number") {
 				if (typeof value === "string") {

@@ -35,7 +35,7 @@ export function buildStringValidator(schema: StringTsonSchema): {
 
 		// Fast throwing version
 		const throwingBody = `
-			function(value: unknown) {
+			function(value: unknown): void {
 				if (typeof value !== "string") throw new Error("Value must be a string");
 				if (value !== "${constValue}") throw new Error('Expected "${constValue}", got "' + value + '"');
 			}
@@ -43,7 +43,7 @@ export function buildStringValidator(schema: StringTsonSchema): {
 
 		// Fast single-error version
 		const quickBody = `
-			function(value: unknown) {
+			function(value: unknown): true | string {
 				if (typeof value !== "string") return "Value must be a string";
 				if (value !== "${constValue}") return 'Expected "${constValue}", got "' + value + '"';
 				return true;
@@ -52,7 +52,7 @@ export function buildStringValidator(schema: StringTsonSchema): {
 
 		// Collecting version
 		const collectingBody = `
-			function(value: unknown) {
+			function(value: unknown): string[] {
 				const errors = [];
 				if (typeof value !== "string") {
 					errors.push("Value must be a string");
@@ -112,7 +112,7 @@ export function buildStringValidator(schema: StringTsonSchema): {
 
 	// Fast throwing version
 	const throwingBody = `
-		function(value: unknown) {
+		function(value: unknown): void {
 			if (typeof value !== "string") throw new Error("Value must be a string");
 			${checks.join('\n			')}
 		}
@@ -120,7 +120,7 @@ export function buildStringValidator(schema: StringTsonSchema): {
 
 	// Fast single-error version
 	const quickBody = `
-		function(value: unknown) {
+		function(value: unknown): true | string {
 			if (typeof value !== "string") return "Value must be a string";
 			${checks.join('\n			')}
 			return true;
@@ -129,7 +129,7 @@ export function buildStringValidator(schema: StringTsonSchema): {
 
 	// Collecting version
 	const collectingBody = `
-		function(value: unknown) {
+		function(value: unknown): string[] {
 			const errors = [];
 			if (typeof value !== "string") errors.push("Value must be a string");
 			${checks

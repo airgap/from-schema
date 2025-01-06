@@ -9,18 +9,18 @@ export function buildBooleanValidator(
 		const constValue = schema.const;
 
 		return {
-			validateOrThrow: `(value: unknown) => {
+			validateOrThrow: `(value: unknown): void => {
 				if (typeof value !== 'boolean') throw new Error("Expected boolean, got " + typeof value);
 				if (value !== ${constValue}) throw new Error("Expected ${constValue}, got " + value);
 			}`,
 
-			isValid: `(value: unknown) => {
+			isValid: `(value: unknown): true | string => {
 				if (typeof value !== 'boolean') return "Expected boolean, got " + typeof value;
 				if (value !== ${constValue}) return "Expected ${constValue}, got " + value;
 				return true;
 			}`,
 
-			validate: `(value: unknown) => {
+			validate: `(value: unknown): string[] => {
 				const errors = [];
 				if (typeof value !== 'boolean') errors.push("Expected boolean, got " + typeof value);
 				if (value !== ${constValue}) errors.push("Expected ${constValue}, got " + value);
@@ -34,19 +34,19 @@ export function buildBooleanValidator(
 	const defaultValue = schema.default as boolean;
 
 	return {
-		validateOrThrow: `(value: unknown) => {
+		validateOrThrow: `(value: unknown): void => {
 			if (typeof value === 'boolean') return value;
 			if (${hasDefault} && value === undefined) return ${defaultValue};
 			throw new Error("Expected boolean, got " + typeof value);
 		}`,
 
-		isValid: `(value: unknown) => {
+		isValid: `(value: unknown): true | string => {
 			if (typeof value === 'boolean') return true;
 			if (${hasDefault} && value === undefined) return true;
 			return "Expected boolean, got " + typeof value;
 		}`,
 
-		validate: `(value: unknown) => {
+		validate: `(value: unknown): string[] => {
 			const errors = [];
 			if (typeof value !== 'boolean') {
 				if (!(${hasDefault} && value === undefined)) {

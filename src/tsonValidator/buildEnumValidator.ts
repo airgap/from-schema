@@ -27,14 +27,14 @@ export function buildEnumValidator(schema: EnumTsonSchema): ProtoValidator {
 		: '';
 
 	return {
-		isValid: `(value: unknown) => {
+		isValid: `(value: unknown): true | string => {
             ${defaultCheck}
             ${typeCheck}
             ${enumCheck}
             return true;
         }`,
 
-		validateOrThrow: `(value: unknown) => {
+		validateOrThrow: `(value: unknown): void => {
             if (value === undefined && ${hasDefault}) {
                 value = ${JSON.stringify(defaultValue)};
                 return true;
@@ -44,7 +44,7 @@ export function buildEnumValidator(schema: EnumTsonSchema): ProtoValidator {
             return value;
         }`,
 
-		validate: `(value: unknown) => {
+		validate: `(value: unknown): string[] => {
             ${defaultCheck}
             ${typeCheck}
             ${enumCheck}

@@ -7,7 +7,7 @@ export const buildDateValidator = (schema: DateTsonSchema): ProtoValidator => {
 		const constTime = schema.const.getTime();
 
 		return {
-			validateOrThrow: `(value: unknown) => {
+			validateOrThrow: `(value: unknown): void => {
 				if (!(value instanceof Date)) {
 					throw new Error("Value must be a Date");
 				}
@@ -15,7 +15,7 @@ export const buildDateValidator = (schema: DateTsonSchema): ProtoValidator => {
 				if (value.getTime() !== ${constTime}) throw new Error('Expected ' + new Date(${constTime}).toISOString() + ', got ' + value.toISOString());
 			}`,
 
-			isValid: `(value: unknown) => {
+			isValid: `(value: unknown): true | string => {
 				if (!(value instanceof Date)) {
 					return "Value must be a Date";
 				}
@@ -24,7 +24,7 @@ export const buildDateValidator = (schema: DateTsonSchema): ProtoValidator => {
 				return true;
 			}`,
 
-			validate: `(value: unknown) => {
+			validate: `(value: unknown): string[] => {
 				const errors = [];
 				if (!(value instanceof Date)) {
 					errors.push("Value must be a Date");
@@ -67,18 +67,18 @@ export const buildDateValidator = (schema: DateTsonSchema): ProtoValidator => {
 	`;
 
 	return {
-		validateOrThrow: `(value: unknown) => {
+		validateOrThrow: `(value: unknown): void => {
 			${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
 			${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n			')}
 		}`,
 
-		isValid: `(value: unknown) => {
+		isValid: `(value: unknown): true | string => {
 			${typeCheck}
 			${checks.join('\n			')}
 			return true;
 		}`,
 
-		validate: `(value: unknown) => {
+		validate: `(value: unknown): string[] => {
 			const errors = [];
 			if (!(value instanceof Date)) {
 				errors.push("Value must be a Date");

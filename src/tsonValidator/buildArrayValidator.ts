@@ -12,7 +12,7 @@ export function buildArrayValidator(schema: ArrayTsonSchema): {
 
 	// Collecting version
 	const collectingBody = `
-		function(value: unknown) {
+		function(value: unknown): string[] {
 			const errors = [];
 
 			// Check if value is an array
@@ -56,7 +56,7 @@ export function buildArrayValidator(schema: ArrayTsonSchema): {
 
 	// Fast throwing version
 	const throwingBody = `
-		function(value: unknown) {
+		function(value: unknown): void {
 			const errors = [];
 
 			if (!Array.isArray(value)) {
@@ -91,7 +91,7 @@ export function buildArrayValidator(schema: ArrayTsonSchema): {
 
 	// Fast single-error version
 	const quickBody = `
-		function(value: unknown) {
+		function(value: unknown): true | string {
 			if (!Array.isArray(value)) {
 				return 'Value must be an array';
 			}

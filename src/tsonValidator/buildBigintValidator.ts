@@ -11,7 +11,7 @@ export function buildBigintValidator(schema: BigIntTsonSchema): {
 
 		// Fast throwing version
 		const throwingBody = `
-			function(value: unknown) {
+			function(value: unknown): void {
 				if (typeof value !== "bigint") {
 					throw new Error("Value must be a bigint");
 				}
@@ -21,7 +21,7 @@ export function buildBigintValidator(schema: BigIntTsonSchema): {
 
 		// Fast single-error version
 		const quickBody = `
-			function(value: unknown) {
+			function(value: unknown): true | string {
 				if (typeof value !== "bigint") {
 					return "Value must be a bigint";
 				}
@@ -32,7 +32,7 @@ export function buildBigintValidator(schema: BigIntTsonSchema): {
 
 		// Collecting version
 		const collectingBody = `
-			function(value: unknown) {
+			function(value: unknown): string[] {
 				const errors = [];
 				if (typeof value !== "bigint") {
 					errors.push("Value must be a bigint");

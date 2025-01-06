@@ -30,18 +30,18 @@ export function buildValidator(schema: TsonSchemaOrPrimitive): ProtoValidator {
 		case 'bigint': {
 			const expectedValue = schema;
 			return {
-				validate: `(value: unknown) => 
+				validate: `(value: unknown): string[] => 
 					value === ${JSON.stringify(expectedValue)}
 						? []
 						: [
 							'Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + value
 						]`,
-				validateOrThrow: `(value: unknown) => {
+				validateOrThrow: `(value: unknown): void => {
 					if (value !== ${JSON.stringify(expectedValue)}) {
 						throw new Error('Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + value);
 					}
 				}`,
-				isValid: `(value: unknown) =>
+				isValid: `(value: unknown): true | string =>
 					value === ${JSON.stringify(expectedValue)}
 						? true
 						: 'Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + value`,
@@ -53,14 +53,14 @@ export function buildValidator(schema: TsonSchemaOrPrimitive): ProtoValidator {
 	if (Array.isArray(schema)) {
 		const expectedValue = schema;
 		return {
-			validate: `(value: unknown) =>
+			validate: `(value: unknown): string[] =>
 				value === ${JSON.stringify(expectedValue)} ? [] : ['Expected ${schema}, got ' + value]`,
-			validateOrThrow: `(value: unknown) => {
+			validateOrThrow: `(value: unknown): void => {
 				if (value !== ${JSON.stringify(expectedValue)}) {
 					throw new Error('Expected ${schema}, got ' + value);
 				}
 			}`,
-			isValid: `(value: unknown) =>
+			isValid: `(value: unknown): true | string =>
 				value === ${JSON.stringify(expectedValue)} ? true : 'Expected ${schema}, got ' + value`,
 		};
 	}
