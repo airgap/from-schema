@@ -44,7 +44,7 @@ export function buildArrayValidator(schema: ArrayTsonSchema): {
 
 			// Validate each item
 			for (let i = 0; i < value.length; i++) {
-				const itemErrors = ${itemValidator.validate}(value[i]);
+				const itemErrors = (${itemValidator.validate})(value[i]);
 				if (itemErrors.length > 0) {
 					errors.push(\`Invalid item at index \${i}: \${itemErrors.join(', ')}\`);
 				}
@@ -84,7 +84,7 @@ export function buildArrayValidator(schema: ArrayTsonSchema): {
 			}
 
 			for (let i = 0; i < value.length; i++) {
-				${itemValidator.validateOrThrow}(value[i]);
+				(${itemValidator.validateOrThrow})(value[i]);
 			}
 		}
 	`;
@@ -117,7 +117,7 @@ export function buildArrayValidator(schema: ArrayTsonSchema): {
 			}
 
 			for (let i = 0; i < value.length; i++) {
-				const result = ${itemValidator.isValid}(value[i]);
+				const result = (${itemValidator.isValid})(value[i]);
 				if (result !== true) {
 					return \`Invalid item at index \${i}: \${result}\`;
 				}
