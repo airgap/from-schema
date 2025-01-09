@@ -1,54 +1,39 @@
 import { EnumTsonSchema } from '../tson/EnumTsonSchema';
 import { ProtoValidator } from '../ProtoValidator';
 
-export function buildEnumValidator(schema: EnumTsonSchema): ProtoValidator {
+export function buildEnumValidator(
+	key: string,
+	schema: EnumTsonSchema,
+): ProtoValidator {
 	const hasDefault = 'default' in schema;
 	const defaultValue = hasDefault ? schema.default : undefined;
 
-	const typeCheck = `
-        if (typeof value !== "string") {
-            return "Expected string, got " + (value === null ? "object" : typeof value);
-        }
-    `;
-
 	const enumCheck = `
-        if (![${schema.enum.map((v) => JSON.stringify(v)).join(', ')}].includes(value)) {
-            return "Value must be one of: ${schema.enum.join(', ')}";
-        }
+        !(typeof ${key} === "string" && [${schema.enum.map((v) => JSON.stringify(v)).join(', ')}].includes(${key}))
     `;
+	const err = `"Value must be one of: ${schema.enum.join(', ')}"`;
 
 	const defaultCheck = hasDefault
 		? `
-        if (value === undefined) {
-            value = ${JSON.stringify(defaultValue)};
-            return true;
-        }
+        if (${key} === undefined) {
+        } else
     `
 		: '';
 
 	return {
-		isValid: `(value: unknown): true | string => {
+		isValid: `
             ${defaultCheck}
-            ${typeCheck}
-            ${enumCheck}
-            return true;
-        }`,
+            if (${enumCheck})
+                return ${err};`,
 
-		validateOrThrow: `(value: unknown): void => {
-            if (value === undefined && ${hasDefault}) {
-                value = ${JSON.stringify(defaultValue)};
-                return true;
-            }
-            ${typeCheck}
-            ${enumCheck}
-            return value;
-        }`,
-
-		validate: `(value: unknown): string[] => {
+		validateOrThrow: `
             ${defaultCheck}
-            ${typeCheck}
-            ${enumCheck}
-            return [];
-        }`,
+            if (${enumCheck})
+                throw ${err};`,
+
+		validate: `
+            ${defaultCheck}
+            if (${enumCheck})
+                allErrors.push(${err});`,
 	};
 }

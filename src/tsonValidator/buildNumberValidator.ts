@@ -1,7 +1,10 @@
 import { NumberTsonSchema } from '../tson/NumberTsonSchema';
 import { ProtoValidator } from '../ProtoValidator';
 
-export function buildNumberValidator(schema: NumberTsonSchema): {
+export function buildNumberValidator(
+	key: string,
+	schema: NumberTsonSchema,
+): {
 	validate: string;
 	validateOrThrow: string;
 	isValid: string;
@@ -12,64 +15,27 @@ export function buildNumberValidator(schema: NumberTsonSchema): {
 
 		// Fast throwing version
 		const throwingBody = `
-			function(value: unknown): void {
-				if (typeof value !== "number") {
-					if (typeof value === "string") {
-						const num = Number(value);
-						if (!Number.isNaN(num)) {
-							value = num;
-						} else {
-							throw new Error("Value must be a valid number");
-						}
-					} else {
-						throw new Error("Value must be a number");
-					}
-				}
-				if (value !== ${constValue}) throw new Error("Expected ${constValue}, got " + value);
-			}
+			if (typeof ${key} !== "number") 
+				throw new Error("Value must be a number");
+			if (${key} !== ${constValue}) throw new Error("Expected ${constValue}, got " + ${key});
+			
 		`;
 
 		// Fast single-error version
 		const quickBody = `
-			function(value: unknown): true | string {
-				if (typeof value !== "number") {
-					if (typeof value === "string") {
-						const num = Number(value);
-						if (!Number.isNaN(num)) {
-							value = num;
-						} else {
-							return "Value must be a valid number";
-						}
-					} else {
-						return "Value must be a number";
-					}
-				}
-				if (value !== ${constValue}) return "Expected ${constValue}, got " + value;
-				return true;
+			if (typeof ${key} !== "number") {
+				return "Value must be a number";
 			}
+			if (${key} !== ${constValue}) return "Expected ${constValue}, got " + ${key};
 		`;
 
 		// Collecting version
 		const collectingBody = `
-			function(value: unknown): string[] {
-				const errors = [];
-				if (typeof value !== "number") {
-					if (typeof value === "string") {
-						const num = Number(value);
-						if (!Number.isNaN(num)) {
-							value = num;
-						} else {
-							errors.push("Value must be a valid number");
-							return errors;
-						}
-					} else {
-						errors.push("Value must be a number");
-						return errors;
-					}
+				if (typeof ${key} !== "number") {
+						allErrors.push("Value must be a number");
 				}
-				if (value !== ${constValue}) errors.push("Expected ${constValue}, got " + value);
-				return errors;
-			}
+				else if (${key} !== ${constValue}) allErrors.push("Expected ${constValue}, got " + ${key});
+				
 		`;
 
 		return {
@@ -84,33 +50,24 @@ export function buildNumberValidator(schema: NumberTsonSchema): {
 
 	if (schema.minimum !== undefined) {
 		checks.push(
-			`if (value < ${schema.minimum}) return "Value must be greater than or equal to ${schema.minimum}";`,
+			`if (${key} < ${schema.minimum}) return "Value must be greater than or equal to ${schema.minimum}";`,
 		);
 	}
 
 	if (schema.maximum !== undefined) {
 		checks.push(
-			`if (value > ${schema.maximum}) return "Value must be less than or equal to ${schema.maximum}";`,
+			`if (${key} > ${schema.maximum}) return "Value must be less than or equal to ${schema.maximum}";`,
 		);
 	}
 
 	const typeCheck = `
-		if (typeof value !== "number") {
-			if (typeof value === "string") {
-				const num = Number(value);
-				if (!Number.isNaN(num)) {
-					value = num;
-				} else {
-					return "Value must be a valid number";
-				}
-			} else {
+		if (typeof ${key} !== "number") {
 				return "Value must be a number";
-			}
 		}
 		
 		${
 			schema.type === 'integer'
-				? `if (!Number.isInteger(value)) {
+				? `if (!Number.isInteger(${key})) {
 				return "Value must be an integer";
 			}`
 				: ''
@@ -119,50 +76,31 @@ export function buildNumberValidator(schema: NumberTsonSchema): {
 
 	// Fast throwing version
 	const throwingBody = `
-		function(value: unknown): void {
 			${typeCheck.replace(/return "(.*?)";/g, 'throw new Error("$1");')}
 			${checks.map((check) => check.replace(/return "(.*?)";/g, 'throw new Error("$1");')).join('\n            ')}
-		}
+		
 	`;
 
 	// Fast single-error version
 	const quickBody = `
-		function(value: unknown): true | string {
-			${typeCheck}
-			${checks.join('\n            ')}
-			return true;
-		}
+		${typeCheck}
+		${checks.join('\n            ')}
 	`;
 
 	// Collecting version
 	const collectingBody = `
-		function(value: unknown): string[] {
-			const errors = [];
-			if (typeof value !== "number") {
-				if (typeof value === "string") {
-					const num = Number(value);
-					if (!Number.isNaN(num)) {
-						value = num;
-					} else {
-						errors.push("Value must be a valid number");
-						return errors;
-					}
-				} else {
-					errors.push("Value must be a number");
-					return errors;
-				}
-			}
-			
+		if (typeof ${key} !== "number") {
+			allErrors.push("Value must be a number");
+		}
+		
 			${
 				schema.type === 'integer'
-					? `if (!Number.isInteger(value)) {
-					errors.push("Value must be an integer");
+					? `else if (!Number.isInteger(${key})) {
+					allErrors.push("Value must be an integer");
 				}`
 					: ''
 			}
-			${checks.map((check) => check.replace(/return "(.*?)";/, 'errors.push("$1");')).join('\n            ')}
-			return errors;
-		}
+			${checks.reduce((acc, check) => acc + ' else ' + check.replace(/return "(.*?)";/, 'allErrors.push("$1");').replace(/;$/, ';'), '')}
 	`;
 
 	return {

@@ -2,6 +2,7 @@ import { BooleanTsonSchema } from '../tson/BooleanTsonSchema';
 import { ProtoValidator } from '../ProtoValidator';
 
 export function buildBooleanValidator(
+	key: string,
 	schema: BooleanTsonSchema,
 ): ProtoValidator {
 	// If const is set, only validate against that value
@@ -9,23 +10,21 @@ export function buildBooleanValidator(
 		const constValue = schema.const;
 
 		return {
-			validateOrThrow: `(value: unknown): void => {
-				if (typeof value !== 'boolean') throw new Error("Expected boolean, got " + typeof value);
-				if (value !== ${constValue}) throw new Error("Expected ${constValue}, got " + value);
-			}`,
+			validateOrThrow: `
+				if (typeof ${key} !== 'boolean') throw new Error("Expected boolean, got " + typeof ${key});
+				if (${key} !== ${constValue}) throw new Error("Expected ${constValue}, got " + ${key});
+			`,
 
-			isValid: `(value: unknown): true | string => {
-				if (typeof value !== 'boolean') return "Expected boolean, got " + typeof value;
-				if (value !== ${constValue}) return "Expected ${constValue}, got " + value;
-				return true;
-			}`,
+			isValid: `
+				if (typeof ${key} !== 'boolean') return "Expected boolean, got " + typeof ${key};
+				if (${key} !== ${constValue}) return "Expected ${constValue}, got " + ${key};
+				
+			`,
 
-			validate: `(value: unknown): string[] => {
-				const errors = [];
-				if (typeof value !== 'boolean') errors.push("Expected boolean, got " + typeof value);
-				if (value !== ${constValue}) errors.push("Expected ${constValue}, got " + value);
-				return errors;
-			}`,
+			validate: `
+				if (typeof ${key} !== 'boolean') allErrors.push("Expected boolean, got " + typeof ${key});
+				else if (${key} !== ${constValue}) allErrors.push("Expected ${constValue}, got " + ${key});
+			`,
 		};
 	}
 
@@ -34,26 +33,22 @@ export function buildBooleanValidator(
 	const defaultValue = schema.default as boolean;
 
 	return {
-		validateOrThrow: `(value: unknown): void => {
-			if (typeof value === 'boolean') return value;
-			if (${hasDefault} && value === undefined) return ${defaultValue};
-			throw new Error("Expected boolean, got " + typeof value);
-		}`,
+		validateOrThrow: `
+		${hasDefault ? `if (typeof ${key} === 'undefined') {} else` : ''}
+		if(typeof ${key} !== 'boolean') throw new Error("Expected boolean, got " + typeof ${key});
+		`,
 
-		isValid: `(value: unknown): true | string => {
-			if (typeof value === 'boolean') return true;
-			if (${hasDefault} && value === undefined) return true;
-			return "Expected boolean, got " + typeof value;
-		}`,
+		isValid: `
+		${hasDefault ? `if (typeof ${key} === 'undefined') {} else` : ''}
+			if (typeof ${key} !== 'boolean')
+			return "Expected boolean, got " + typeof ${key};
+		`,
 
-		validate: `(value: unknown): string[] => {
-			const errors = [];
-			if (typeof value !== 'boolean') {
-				if (!(${hasDefault} && value === undefined)) {
-					errors.push("Expected boolean, got " + typeof value);
-				}
+		validate: `
+		${hasDefault ? `if (typeof ${key} === 'undefined') {} else` : ''}
+			if (typeof ${key} !== 'boolean') {
+				allErrors.push("Expected boolean, got " + typeof ${key});
 			}
-			return errors;
-		}`,
+		`,
 	};
 }

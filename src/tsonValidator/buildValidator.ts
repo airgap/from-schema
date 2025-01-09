@@ -21,7 +21,10 @@ import { buildOneOfValidator } from './buildOneOfValidator';
 import { buildDateValidator } from './buildDateValidator';
 import { ProtoValidator } from '../ProtoValidator';
 
-export function buildValidator(schema: TsonSchemaOrPrimitive): ProtoValidator {
+export function buildValidator(
+	key: string,
+	schema: TsonSchemaOrPrimitive,
+): ProtoValidator {
 	// Handle primitive literals
 	switch (typeof schema) {
 		case 'string':
@@ -30,21 +33,19 @@ export function buildValidator(schema: TsonSchemaOrPrimitive): ProtoValidator {
 		case 'bigint': {
 			const expectedValue = schema;
 			return {
-				validate: `(value: unknown): string[] => 
-					value === ${JSON.stringify(expectedValue)}
-						? []
-						: [
-							'Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + value
-						]`,
-				validateOrThrow: `(value: unknown): void => {
-					if (value !== ${JSON.stringify(expectedValue)}) {
-						throw new Error('Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + value);
+				validate: `
+					if(${key} !== ${JSON.stringify(expectedValue)})
+						allErrors.push('Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + ${key})
+						`,
+				validateOrThrow: `
+					if (${key} !== ${JSON.stringify(expectedValue)}) {
+						throw new Error('Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + ${key});
 					}
-				}`,
-				isValid: `(value: unknown): true | string =>
-					value === ${JSON.stringify(expectedValue)}
-						? true
-						: 'Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + value`,
+				`,
+				isValid: `
+					if(${key} !== ${JSON.stringify(expectedValue)})
+						return 'Expected ${typeof schema === 'string' ? `"${schema}"` : schema}, got ' + ${key}
+				`,
 			};
 		}
 	}
@@ -53,38 +54,40 @@ export function buildValidator(schema: TsonSchemaOrPrimitive): ProtoValidator {
 	if (Array.isArray(schema)) {
 		const expectedValue = schema;
 		return {
-			validate: `(value: unknown): string[] =>
-				value === ${JSON.stringify(expectedValue)} ? [] : ['Expected ${schema}, got ' + value]`,
-			validateOrThrow: `(value: unknown): void => {
-				if (value !== ${JSON.stringify(expectedValue)}) {
-					throw new Error('Expected ${schema}, got ' + value);
+			validate: `
+				${key} === ${JSON.stringify(expectedValue)} ? [] : allErrors.push('Expected ${schema}, got ' + ${key})`,
+			validateOrThrow: `
+				if (${key} !== ${JSON.stringify(expectedValue)}) {
+					throw new Error('Expected ${schema}, got ' + ${key});
 				}
-			}`,
-			isValid: `(value: unknown): true | string =>
-				value === ${JSON.stringify(expectedValue)} ? true : 'Expected ${schema}, got ' + value`,
+			`,
+			isValid: `
+				${key} === ${JSON.stringify(expectedValue)} ? true : 'Expected ${schema}, got ' + ${key}`,
 		};
 	}
-
+	console.log('KEY', key, 'SCHEMA', schema);
 	// Handle schema objects
-	if ('enum' in schema) return buildEnumValidator(schema as EnumTsonSchema);
-	if ('oneOf' in schema) return buildOneOfValidator(schema as OneOfTsonSchema);
+	if ('enum' in schema)
+		return buildEnumValidator(key, schema as EnumTsonSchema);
+	if ('oneOf' in schema)
+		return buildOneOfValidator(key, schema as OneOfTsonSchema);
 
 	switch ('type' in schema && schema.type) {
 		case 'array':
-			return buildArrayValidator(schema as ArrayTsonSchema);
+			return buildArrayValidator(key, schema as ArrayTsonSchema);
 		case 'object':
-			return buildObjectValidator(schema as ObjectTsonSchema);
+			return buildObjectValidator(key, schema as ObjectTsonSchema);
 		case 'string':
-			return buildStringValidator(schema as StringTsonSchema);
+			return buildStringValidator(key, schema as StringTsonSchema);
 		case 'bigint':
-			return buildBigintValidator(schema as BigIntTsonSchema);
+			return buildBigintValidator(key, schema as BigIntTsonSchema);
 		case 'number':
 		case 'integer':
-			return buildNumberValidator(schema as NumberTsonSchema);
+			return buildNumberValidator(key, schema as NumberTsonSchema);
 		case 'boolean':
-			return buildBooleanValidator(schema as BooleanTsonSchema);
+			return buildBooleanValidator(key, schema as BooleanTsonSchema);
 		case 'date':
-			return buildDateValidator(schema as DateTsonSchema);
+			return buildDateValidator(key, schema as DateTsonSchema);
 		default:
 			throw new Error(`Invalid schema: ${JSON.stringify(schema, null, 4)}`);
 	}
