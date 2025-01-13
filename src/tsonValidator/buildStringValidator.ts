@@ -45,11 +45,16 @@ export function buildStringValidator(
 
 	// Original validation logic for non-const strings
 	const checks: string[] = [];
+	const throwingChecks: string[] = [];
 
 	if (schema.minLength !== undefined) {
 		checks.push(
 			`if (${key}.length < ${schema.minLength}) ` +
 				`return "String must be at least ${schema.minLength} characters long";`,
+		);
+		throwingChecks.push(
+			`if (${key}.length < ${schema.minLength}) ` +
+				`throw new Error("String must be at least ${schema.minLength} characters long");`,
 		);
 	}
 
@@ -57,6 +62,10 @@ export function buildStringValidator(
 		checks.push(
 			`if (${key}.length > ${schema.maxLength}) ` +
 				`return "String must be at most ${schema.maxLength} characters long";`,
+		);
+		throwingChecks.push(
+			`if (${key}.length > ${schema.maxLength}) ` +
+				`throw new Error("String must be at most ${schema.maxLength} characters long");`,
 		);
 	}
 
@@ -73,6 +82,10 @@ export function buildStringValidator(
 			checks.push(
 				`if (!new RegExp("${patternStr}", "${flags}").test(${key})) return "String must be a valid ${schema.format} format";`,
 			);
+			throwingChecks.push(
+				`if (!new RegExp("${patternStr}", "${flags}").test(${key})) ` +
+					`throw new Error("String must be a valid ${schema.format} format");`,
+			);
 		}
 	}
 
@@ -81,12 +94,16 @@ export function buildStringValidator(
 			`if (!new RegExp("${schema.pattern}").test(${key})) ` +
 				`return "String must match pattern: ${schema.pattern}";`,
 		);
+		throwingChecks.push(
+			`if (!new RegExp("${schema.pattern}").test(${key})) ` +
+				`throw new Error("String must match pattern: ${schema.pattern}");`,
+		);
 	}
 
 	// Fast throwing version
 	const throwingBody = `
 			if (typeof ${key} !== "string") throw new Error("Value must be a string");
-			${checks.reduce((acc, check) => acc + ' else ' + check, '')}
+			${throwingChecks.reduce((acc, check) => acc + ' else ' + check, '')}
 	`;
 
 	// Fast single-error version
