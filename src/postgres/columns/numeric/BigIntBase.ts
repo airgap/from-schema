@@ -1,6 +1,6 @@
-import { SchemaBase } from '../../../generic';
+import { PostgresColumnBase } from '../../PostgresColumnBase';
 
-export type BigIntBase = SchemaBase & {
+export type BigIntBase = PostgresColumnBase & {
 	readonly minimum?: bigint;
 	readonly maximum?: bigint;
 	readonly exclusiveMinimum?: bigint;

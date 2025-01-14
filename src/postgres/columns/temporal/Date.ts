@@ -1,5 +1,5 @@
-import { SchemaBase } from '../../../generic';
+import { PostgresColumnBase } from '../../PostgresColumnBase';
 
-export type DateColumnModel = SchemaBase & {
+export type DateColumnModel = PostgresColumnBase & {
 	type: 'date';
 };

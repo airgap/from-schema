@@ -1,6 +1,6 @@
-import { SchemaBase } from '../../../generic';
+import { PostgresColumnBase } from '../../PostgresColumnBase';
 
-export type VarcharColumnModel = SchemaBase & {
+export type VarcharColumnModel = PostgresColumnBase & {
 	readonly type: 'varchar' | 'character varying';
 	readonly minLength?: number;
 	readonly maxLength?: number;

@@ -1,5 +1,5 @@
-import { SchemaBase } from '../../generic/SchemaBase';
+import { PostgresColumnBase } from '../PostgresColumnBase';
 
-export type ByteaColumnModel = SchemaBase & {
+export type ByteaColumnModel = PostgresColumnBase & {
 	type: 'bytea';
 };

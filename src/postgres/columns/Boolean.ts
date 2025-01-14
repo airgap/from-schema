@@ -1,6 +1,6 @@
-import { SchemaBase } from '../../generic/SchemaBase';
+import { PostgresColumnBase } from '../PostgresColumnBase';
 
-export type BooleanColumnModel = SchemaBase & {
+export type BooleanColumnModel = PostgresColumnBase & {
 	type: 'boolean' | 'bool';
 	examples?: [true] | [false] | [true, false];
 };

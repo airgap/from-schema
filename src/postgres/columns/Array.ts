@@ -1,8 +1,7 @@
-import { SchemaBase } from '../../generic/SchemaBase';
-import { EnumJsonSchema } from '../../json';
+import { PostgresColumnBase } from '../PostgresColumnBase';
 import { PostgresColumnModel } from '../PostgresColumnModel';
 
-export type ArrayColumnModel = SchemaBase & {
+export type ArrayColumnModel = PostgresColumnBase & {
 	readonly type: 'array';
 	readonly items: PostgresColumnModel;
 	readonly minItems?: number;

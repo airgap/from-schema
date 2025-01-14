@@ -1,6 +1,6 @@
-import { SchemaBase } from '../../../generic';
+import { PostgresColumnBase } from '../../PostgresColumnBase';
 
-export type TimeColumnModel = SchemaBase & {
+export type TimeColumnModel = PostgresColumnBase & {
 	type: 'time';
 	timezone?: boolean;
 	precision?: number;

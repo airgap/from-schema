@@ -1,7 +1,6 @@
-import { SchemaBase } from '../../generic/SchemaBase';
-import { EnumJsonSchema } from '../../json';
+import { PostgresColumnBase } from '../PostgresColumnBase';
 
-export type EnumColumnModel = SchemaBase & {
+export type EnumColumnModel = PostgresColumnBase & {
 	readonly type: 'enum';
 	readonly enum: readonly string[];
 };
