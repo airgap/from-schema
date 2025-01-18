@@ -2,6 +2,7 @@ import { ArrayTsonSchema } from '../tson/ArrayTsonSchema';
 import { ProtoValidator } from '../ProtoValidator';
 import { buildValidator } from './buildValidator';
 import { ValidationError } from './ValidationError';
+import { alpha } from '../alpha';
 
 export function buildArrayValidator(
 	key: string,
@@ -11,16 +12,14 @@ export function buildArrayValidator(
 	validateOrThrow: string;
 	isValid: string;
 } {
-	const itemValidator = buildValidator('item', schema.items);
+	const itemKey = alpha(key) + '_item';
+	const itemValidator = buildValidator(itemKey, schema.items);
 
 	// Collecting version
 	const collectingBody = `
-			// Check if value is an array
 			if (!Array.isArray(${key})) {
 				allErrors.push('Value must be an array');
 			} else {
-
-			// Check minLength
 			${
 				schema.minLength !== undefined
 					? `
@@ -30,8 +29,6 @@ export function buildArrayValidator(
 			`
 					: ''
 			}
-
-			// Check maxLength
 			${
 				schema.maxLength !== undefined
 					? `
@@ -41,10 +38,8 @@ export function buildArrayValidator(
 			`
 					: ''
 			}
-
-			// Validate each item
 			for (let i = 0; i < ${key}.length; i++) {
-			const item = ${key}[i];
+			const ${itemKey} = ${key}[i];
 			${itemValidator.validate}
 			}
 		}
@@ -78,7 +73,7 @@ export function buildArrayValidator(
 			}
 
 			for (let i = 0; i < ${key}.length; i++) {
-			const item = ${key}[i];
+			const ${itemKey} = ${key}[i];
 				${itemValidator.validateOrThrow}
 			}
 	`;
@@ -111,7 +106,7 @@ export function buildArrayValidator(
 			}
 
 			for (let i = 0; i < ${key}.length; i++) {
-				const item = ${key}[i];
+				const ${itemKey} = ${key}[i];
 				${itemValidator.isValid}
 			}
 	`;
