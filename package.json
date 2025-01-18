@@ -1,6 +1,6 @@
 {
 	"name": "from-schema",
-	"version": "0.1.23",
+	"version": "0.1.24",
 	"description": "Infer TypeScript types from JSON schemas",
 	"main": "dist/index.js",
 	"type": "module",
