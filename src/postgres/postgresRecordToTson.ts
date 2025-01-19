@@ -5,7 +5,6 @@ import { postgresColumnToTson } from './postgresColumnToTson';
 export const postgresRecordToTson = <S extends PostgresRecordModel>(
 	s: S,
 ): TsonSchema => {
-	// console.log('ppp', s)
 	const properties = Object.entries(
 		s.properties as Record<string, PostgresColumnModel>,
 	);

@@ -4,10 +4,8 @@ import { PostgresColumnModel } from '../postgres';
 export const postgresColumnToKysely = <S extends PostgresColumnModel>(
 	s: S,
 ): string => {
-	console.log(s.type);
 	switch (s.type) {
 		case 'enum':
-			console.log(s.enum);
 			return `${s.enum.map((e) => `'${e}'`).join(' | ')}`;
 		case 'array':
 			return `Array<${postgresColumnToKysely(s.items)}>`;

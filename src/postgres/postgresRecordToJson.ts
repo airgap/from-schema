@@ -4,7 +4,6 @@ import { PostgresColumnModel } from './PostgresColumnModel';
 export const postgresRecordToJson = <S extends PostgresRecordModel>(
 	s: S,
 ): JsonSchema => {
-	// console.log('ppp', s)
 	const properties = Object.entries(
 		s.properties as Record<string, PostgresColumnModel>,
 	);

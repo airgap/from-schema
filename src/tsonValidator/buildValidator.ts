@@ -65,7 +65,6 @@ export function buildValidator(
 				${key} === ${JSON.stringify(expectedValue)} ? true : 'Expected ${schema}, got ' + ${key}`,
 		};
 	}
-	// console.log('KEY', key, 'SCHEMA', schema);
 	// Handle schema objects
 	if ('enum' in schema)
 		return buildEnumValidator(key, schema as EnumTsonSchema);

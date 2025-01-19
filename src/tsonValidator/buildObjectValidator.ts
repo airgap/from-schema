@@ -20,7 +20,6 @@ export function buildObjectValidator(
 		isValidValidators += `${propertyValidators[k].isValid};`;
 		collectingValidators += `${propertyValidators[k].validate};`;
 	}
-	console.log('ULTRAFAGGOT', propertyValidators);
 	const requiredProps = 'required' in schema ? schema.required : [];
 
 	return {
