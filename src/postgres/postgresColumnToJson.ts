@@ -38,17 +38,17 @@ export const postgresColumnToJson = <S extends PostgresColumnModel>(
 		case 'serial2':
 		case 'numeric':
 			return {
-				minimum: s.minimum ? Number(s.minimum) : undefined,
-				maximum: s.maximum ? Number(s.maximum) : undefined,
-				exclusiveMinimum: s.exclusiveMinimum
-					? Number(s.exclusiveMinimum)
-					: undefined,
-				exclusiveMaximum: s.exclusiveMaximum
-					? Number(s.exclusiveMaximum)
-					: undefined,
-				multipleOf: s.multipleOf ? Number(s.multipleOf) : undefined,
+				...(s.minimum ? { minimum: Number(s.minimum) } : {}),
+				...(s.maximum ? { maximum: Number(s.maximum) } : {}),
+				...(s.exclusiveMinimum
+					? { exclusiveMinimum: Number(s.exclusiveMinimum) }
+					: {}),
+				...(s.exclusiveMaximum
+					? { exclusiveMaximum: Number(s.exclusiveMaximum) }
+					: {}),
+				...(s.multipleOf ? { multipleOf: Number(s.multipleOf) } : {}),
 				type: 'number',
-				default: s.default === 'nextval' ? undefined : Number(s.default),
+				default: s.default === 'nextval' ? -1 : Number(s.default),
 			};
 		case 'date':
 		case 'timestamp':

@@ -1,5 +1,5 @@
 import { PostgresColumnModel } from '.';
-import { TsonSchema } from '../tson';
+import { BigIntTsonSchema, TsonSchema } from '../tson';
 
 export const postgresColumnToTson = <S extends PostgresColumnModel>(
 	s: S,
@@ -27,8 +27,10 @@ export const postgresColumnToTson = <S extends PostgresColumnModel>(
 			return {
 				...s,
 				type: 'bigint',
-				default: s.default === 'nextval' ? undefined : s.default,
-			};
+				...((s.default
+					? { default: s.default === 'nextval' ? -1n : s.default }
+					: {}) as any),
+			} satisfies BigIntTsonSchema;
 		case 'double precision':
 		case 'float8':
 		case 'int':
@@ -45,7 +47,9 @@ export const postgresColumnToTson = <S extends PostgresColumnModel>(
 			return {
 				...s,
 				type: 'number',
-				default: s.default === 'nextval' ? undefined : s.default,
+				...((typeof s.default !== 'undefined'
+					? { default: s.default === 'nextval' ? -1 : s.default }
+					: {}) as any),
 			};
 		case 'date':
 		case 'timestamp':
