@@ -6,5 +6,5 @@ export type VarcharColumnModel = PostgresColumnBase & {
 	readonly maxLength?: number;
 	readonly pattern?: string;
 	readonly enum?: string[];
-	readonly check?: string;
+	readonly checks?: string[];
 };
