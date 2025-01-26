@@ -5,5 +5,6 @@ export type TextColumnModel = PostgresColumnBase & {
 	readonly minLength?: number;
 	readonly maxLength?: number;
 	readonly pattern?: string;
-	readonly check?: string[];
+	readonly enum?: string[];
+	readonly check?: string;
 };
