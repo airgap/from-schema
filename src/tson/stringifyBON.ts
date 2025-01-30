@@ -19,7 +19,6 @@ export const stringifyBON = (value: unknown, space = ''): string => {
 		const objectEntries = Object.entries(value)
 			.map(([key, item]: [string, unknown]) => {
 				const serializedKey = `"${key.replace(/"/g, '\\"')}"`; // Escape key
-				console.log('serializedKey', serializedKey);
 				const serializedValue = stringifyBON(item);
 				return `${serializedKey}: ${serializedValue}`; // Serialize objects
 			})
