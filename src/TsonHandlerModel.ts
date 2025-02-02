@@ -42,7 +42,10 @@ type HeadHandlerModel = TsonHandlerBase & {
 	method: 'HEAD';
 };
 
-// export type HandlerModel = HandlerModelBase & (AuthenticatedHandlerModel | AnonymouseHandlerModel) & (StreamHandlerModel | HttpHandlerModel)
+type VagueHandlerModel = TsonHandlerBase & {
+	request?: TsonSchema;
+};
+
 export type TsonHttpHandlerModel = Readonly<
 	| GetHandlerModel
 	| PostHandlerModel
@@ -51,6 +54,7 @@ export type TsonHttpHandlerModel = Readonly<
 	| PatchHandlerModel
 	| OptionsHandlerModel
 	| HeadHandlerModel
+	| VagueHandlerModel
 >;
 
 export type TsonStreamHandlerModel = Readonly<
