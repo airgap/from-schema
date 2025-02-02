@@ -33,7 +33,7 @@
 	},
 	"homepage": "https://github.com/airgap/from-schema#readme",
 	"devDependencies": {
-		"@types/node": "^22.10.10",
+		"@types/node": "^22.13.0",
 		"@typescript-eslint/eslint-plugin": "5.62.0",
 		"@typescript-eslint/parser": "5.62.0",
 		"ajv": "^8.17.1",
@@ -48,7 +48,7 @@
 		"typescript": "^5.4.2"
 	},
 	"optionalDependencies": {
-		"mongodb": "^6.12.0"
+		"mongodb": "^6.13.0"
 	},
 	"files": [
 		"dist"
