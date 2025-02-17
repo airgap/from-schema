@@ -1,5 +1,5 @@
-import { BigIntBase } from './BigIntBase';
+import { NumberBase } from './NumberBase';
 
-export type BigSerialColumnModel = BigIntBase & {
+export type BigSerialColumnModel = NumberBase<bigint> & {
 	readonly type: 'bigserial' | 'serial8';
 };
