@@ -14,8 +14,8 @@ export type PostgresTableModel<S extends PostgresRecordModel> = {
 	readonly primaryKey?:
 		| keyof S['properties']
 		| readonly (keyof S['properties'])[];
-	readonly foreignKeys?: readonly Record<
+	readonly foreignKeys?: Record<
 		keyof S['properties'],
 		{ readonly [key: string]: string }
-	>[];
+	>;
 };
