@@ -8,4 +8,5 @@ export type PostgresColumnBase = SchemaBase & {
 		readonly from?: string;
 		readonly stored?: boolean;
 	};
+	readonly checks?: string[];
 };
