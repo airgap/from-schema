@@ -3,13 +3,15 @@ import {
 	FromPostgresRecordModel,
 	PostgresRecordModel,
 } from './PostgresRecordModel';
-
+type P<S extends PostgresRecordModel> = keyof S['properties'];
+type IndexesOf<S extends PostgresRecordModel> = readonly (
+	| P<S>
+	| P<S>[]
+	| { columns: P<S> | readonly P<S>[]; name?: string }
+)[];
 export type PostgresTableModel<S extends PostgresRecordModel> = {
 	readonly schema: S;
-	readonly indexes?: readonly (
-		| keyof S['properties']
-		| { bond: readonly (keyof S['properties'])[] }
-	)[];
+	readonly indexes?: IndexesOf<S>;
 	readonly docs?: any[]; //FromPostgresRecordModel<S>[];
 	readonly primaryKey?:
 		| keyof S['properties']
