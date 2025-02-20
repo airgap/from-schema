@@ -53,6 +53,7 @@ export const postgresColumnToTson = <S extends PostgresColumnModel>(
 			};
 		case 'date':
 		case 'timestamp':
+		case 'timestamptz':
 			return { ...s, type: 'date' };
 		case 'jsonb':
 			return s.schema ?? { type: 'object', properties: {}, required: [] };

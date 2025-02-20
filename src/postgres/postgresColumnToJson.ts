@@ -52,7 +52,8 @@ export const postgresColumnToJson = <S extends PostgresColumnModel>(
 			};
 		case 'date':
 		case 'timestamp':
-			return { ...s, type: 'string', format: 'date' };
+		case 'timestamptz':
+			return { ...s, type: 'string', format: 'date-time' };
 		case 'jsonb':
 			return s.schema ?? { type: 'object', properties: {}, required: [] };
 		default:
