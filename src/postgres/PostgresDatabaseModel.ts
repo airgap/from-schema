@@ -6,4 +6,5 @@ export type PostgresDatabaseModel<
 > = {
 	type: 'database';
 	tables: T;
+	triggers?: Record<string, string>;
 };

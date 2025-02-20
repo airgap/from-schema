@@ -6,4 +6,5 @@ export * from './postgresColumnToJson';
 export * from './postgresRecordToJson';
 export * from './postgresColumnToTson';
 export * from './postgresRecordToTson';
+export * from './PostgresTriggerModel';
 export * from './columns';

@@ -3,6 +3,7 @@ import {
 	FromPostgresRecordModel,
 	PostgresRecordModel,
 } from './PostgresRecordModel';
+import { PostgresTriggerModel } from './PostgresTriggerModel';
 type P<S extends PostgresRecordModel> = keyof S['properties'];
 type IndexesOf<S extends PostgresRecordModel> = readonly (
 	| P<S>
@@ -19,4 +20,5 @@ export type PostgresTableModel<S extends PostgresRecordModel> = {
 	readonly foreignKeys?: Partial<
 		Record<keyof S['properties'], { readonly [key: string]: string }>
 	>;
+	readonly triggers?: PostgresTriggerModel[];
 };
