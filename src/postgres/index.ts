@@ -2,8 +2,6 @@ export * from './PostgresColumnModel';
 export * from './PostgresRecordModel';
 export * from './PostgresTableModel';
 export * from './PostgresDatabaseModel';
-export * from './postgresColumnToJson';
-export * from './postgresRecordToJson';
 export * from './postgresColumnToTson';
 export * from './postgresRecordToTson';
 export * from './PostgresTriggerModel';

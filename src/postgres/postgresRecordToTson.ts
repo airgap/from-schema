@@ -1,4 +1,4 @@
-import { postgresColumnToJson, PostgresRecordModel } from '.';
+import { PostgresRecordModel } from './PostgresRecordModel';
 import { TsonSchema } from '../tson';
 import { PostgresColumnModel } from './PostgresColumnModel';
 import { postgresColumnToTson } from './postgresColumnToTson';
@@ -10,7 +10,9 @@ export const postgresRecordToTson = <S extends PostgresRecordModel>(
 		s.properties as Record<string, PostgresColumnModel>,
 	);
 	const required = 'required' in s ? s.required : [];
-	const reallyRequired = insertable ? required.filter(p => 'default' in s || 'generated' in s) : required;
+	const reallyRequired = insertable
+		? required.filter((p) => 'default' in s || 'generated' in s)
+		: required;
 	return {
 		type: 'object',
 		properties: Object.fromEntries(

@@ -21,6 +21,9 @@ export type PostgresColumnModel =
 	| columns.TextColumnModel
 	| columns.TimeColumnModel
 	| columns.TimestampColumnModel
+	| columns.TimestamptzColumnModel
+	| columns.TimeColumnModel
+	| columns.DateColumnModel
 	| columns.VarcharColumnModel
 	| columns.JsonbColumnModel;
 

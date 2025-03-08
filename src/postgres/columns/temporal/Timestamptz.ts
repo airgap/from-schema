@@ -1,5 +1,5 @@
 import { TimestampBase } from './TimestampBase';
 
-export type Timestamptz = TimestampBase & {
+export type TimestamptzColumnModel = TimestampBase & {
 	type: 'timestamptz';
-}
+};
