@@ -14,6 +14,7 @@ export type PostgresColumnModel =
 	| columns.IntegerColumnModel
 	| columns.MoneyColumnModel
 	| columns.NumericColumnModel
+	| columns.PointColumnModel
 	| columns.RealColumnModel
 	| columns.SmallIntColumnModel
 	| columns.SmallSerialColumnModel
