@@ -47,9 +47,6 @@
 	"peerDependencies": {
 		"typescript": "^5.4.2"
 	},
-	"optionalDependencies": {
-		"mongodb": "^6.13.0"
-	},
 	"files": [
 		"dist"
 	]
