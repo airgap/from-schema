@@ -2,12 +2,12 @@ import { TsonSchema } from './tson';
 
 type Unauthed = {
 	authenticated: false;
-	throws?: string[];
+	throws?: number[];
 };
 
 type Authed = {
 	authenticated: true;
-	throws?: [400, 401, 500, ...string[]];
+	throws?: number[];
 };
 
 export type TsonHandlerBase = {
