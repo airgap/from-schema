@@ -1,5 +1,6 @@
 export * from './Boolean';
 export * from './Bytea';
+export * from './geometric';
 export * from './numeric';
 export * from './textual';
 export * from './temporal';

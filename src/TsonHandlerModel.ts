@@ -1,10 +1,20 @@
 import { TsonSchema } from './tson';
 
+type Unauthed = {
+	authenticated: false;
+	throws?: number[];
+};
+
+type Authed = {
+	authenticated: true;
+	throws?: number[];
+};
+
 export type TsonHandlerBase = {
 	readonly response?: TsonSchema;
 	readonly authenticated?: boolean;
 	readonly throws?: readonly number[];
-};
+} & (Unauthed | Authed);
 
 export type StreamConfig = {
 	readonly tweakRequest?: TsonSchema;

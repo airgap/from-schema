@@ -14,6 +14,7 @@ export type PostgresColumnModel =
 	| columns.IntegerColumnModel
 	| columns.MoneyColumnModel
 	| columns.NumericColumnModel
+	| columns.PointColumnModel
 	| columns.RealColumnModel
 	| columns.SmallIntColumnModel
 	| columns.SmallSerialColumnModel
@@ -22,6 +23,8 @@ export type PostgresColumnModel =
 	| columns.TimeColumnModel
 	| columns.Timestamp
 	| columns.Timestamptz
+	| columns.TimeColumnModel
+	| columns.DateColumnModel
 	| columns.VarcharColumnModel
 	| columns.JsonbColumnModel;
 

@@ -1,4 +1,4 @@
-import { postgresColumnToJson, PostgresRecordModel } from '.';
+import { PostgresRecordModel } from './PostgresRecordModel';
 import { TsonSchema } from '../tson';
 import { PostgresColumnModel } from './PostgresColumnModel';
 import { postgresColumnToTson } from './postgresColumnToTson';

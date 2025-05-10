@@ -1,7 +1,7 @@
 import { PostgresColumnBase } from '../../PostgresColumnBase';
 
 export type TimeColumnModel = PostgresColumnBase & {
-	type: 'time';
-	timezone?: boolean;
-	precision?: number;
+	readonly type: 'time';
+	readonly timezone?: boolean;
+	readonly precision?: number;
 };

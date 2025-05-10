@@ -1,10 +1,20 @@
 import { JsonSchema } from './json';
 
 // export type HandlerModel = HandlerModelBase & (AuthenticatedHandlerModel | AnonymouseHandlerModel) & (StreamHandlerModel | HttpHandlerModel)
+
+type Unauthed = {
+	authenticated: false;
+	throws?: string[];
+};
+
+type Authed = {
+	authenticated: true;
+	throws?: [400, 401, 500, ...string[]];
+};
+
 type HandlerBase = {
 	response?: JsonSchema;
-	authenticated?: boolean;
-};
+} & (Unauthed | Authed);
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD';
 type GetHandlerModel = HandlerBase & {
 	method: 'GET';
