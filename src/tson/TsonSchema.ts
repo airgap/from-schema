@@ -10,6 +10,7 @@ import { DateTsonSchema } from './DateTsonSchema';
 import { IntersectionTsonSchema } from './IntersectionTsonSchema';
 import { ExclusiveTsonSchema } from './ExclusiveTsonSchema';
 import { BigIntTsonSchema } from './BigIntTsonSchema';
+import { RefTsonSchema } from './RefTsonSchema';
 
 export type TsonSchema =
 	| ArrayTsonSchema
@@ -23,4 +24,5 @@ export type TsonSchema =
 	| UnionTsonSchema
 	| ExclusiveTsonSchema
 	| IntersectionTsonSchema
-	| BigIntTsonSchema;
+	| BigIntTsonSchema
+	| RefTsonSchema;

@@ -6,6 +6,10 @@ export const tsonToType = <S extends TsonSchemaOrPrimitive>(s: S): string => {
 	if (typeof s === 'number') return s.toString();
 	if (typeof s === 'bigint') return s.toString();
 	if (typeof s === 'object') {
+		if ('$ref' in s) {
+			const val = s.$ref;
+			return 'any'; // WIP
+		}
 		if ('enum' in s) return `${s.enum.map((e) => tsonToType(e)).join(' | ')}`;
 		if ('oneOf' in s)
 			return `(${s.oneOf.map((e) => tsonToType(e)).join(' | ')})`;
@@ -39,7 +43,7 @@ export const tsonToType = <S extends TsonSchemaOrPrimitive>(s: S): string => {
 					throw new Error(`Unknown type: ${s.type}`);
 			}
 		}
-		throw new Error(`Unknown object schema: ${s}`);
+		throw new Error(`Unknown tson schema: ${JSON.stringify(s, null, 4)}`);
 	}
-	throw new Error(`Unknown schema type ${typeof s}: ${s}`);
+	throw new Error(`Unknown tson schema type ${typeof s}: ${s}`);
 };

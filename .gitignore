@@ -172,3 +172,5 @@ from-schema-*.tgz
 
 .idea
 .vscode
+
+**/.claude/settings.local.json

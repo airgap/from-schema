@@ -22,3 +22,4 @@ export * from './NumberTsonSchema';
 export * as tsonPrimitives from './primitives';
 export * from './ExclusiveTsonSchema';
 export * from './IntersectionTsonSchema';
+export * from './RefTsonSchema';

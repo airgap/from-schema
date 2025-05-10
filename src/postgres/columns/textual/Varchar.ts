@@ -7,4 +7,5 @@ export type VarcharColumnModel = PostgresColumnBase & {
 	readonly pattern?: string;
 	readonly enum?: string[];
 	readonly checks?: string[];
+	readonly default?: string;
 };

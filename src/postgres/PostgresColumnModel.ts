@@ -20,7 +20,8 @@ export type PostgresColumnModel =
 	| columns.SerialColumnModel
 	| columns.TextColumnModel
 	| columns.TimeColumnModel
-	| columns.TimestampColumnModel
+	| columns.Timestamp
+	| columns.Timestamptz
 	| columns.VarcharColumnModel
 	| columns.JsonbColumnModel;
 
@@ -61,10 +62,12 @@ export type FromPostgresColumnModel<S extends PostgresColumnModel> =
 																		? string
 																		: S extends columns.TimeColumnModel
 																			? Date
-																			: S extends columns.TimestampColumnModel
+																			: S extends columns.Timestamp
 																				? Date
-																				: S extends columns.VarcharColumnModel
-																					? string
-																					: S extends columns.JsonbColumnModel
-																						? FromJsonSchema<S>
-																						: never;
+																				: S extends columns.Timestamptz
+																					? Date
+																					: S extends columns.VarcharColumnModel
+																						? string
+																						: S extends columns.JsonbColumnModel
+																							? FromJsonSchema<S>
+																							: never;

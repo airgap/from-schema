@@ -18,6 +18,7 @@ import { oneOfBsonToJson } from './oneOfBsonToJson';
 import { b2jAllOf } from './allOfBsonToJson';
 import { anyOfBsonToJson } from './anyOfBsonToJson';
 import { OneOfBsonSchema, AllOfBsonSchema, AnyOfBsonSchema } from '../bson';
+import { stringifyBON } from '../tson';
 
 export const bsonToJson = <S extends BsonSchemaOrPrimitive>(
 	s: S,
@@ -54,7 +55,7 @@ export const bsonToJson = <S extends BsonSchemaOrPrimitive>(
 			}
 		}
 		throw new Error(
-			`Invalid BSON schema: object must have either "enum" or "bsonType" property: ${JSON.stringify(s)}`,
+			`Invalid BSON schema: object must have either "enum" or "bsonType" property: ${stringifyBON(s)}`,
 		);
 	}
 	throw new Error('Invalid BSON schema: unexpected type');

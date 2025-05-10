@@ -12,7 +12,7 @@
 		"format": "prettier -w . && eslint --fix",
 		"lint": "prettier -c . && eslint",
 		"clean": "rm -rf dist build tmp node_modules",
-		"build-anew": "npm run clean && npm i && npm run build"
+		"build-anew": "bun run clean && bun i && bun run build"
 	},
 	"repository": {
 		"type": "git",

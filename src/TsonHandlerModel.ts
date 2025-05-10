@@ -1,49 +1,50 @@
 import { TsonSchema } from './tson';
 
 export type TsonHandlerBase = {
-	response?: TsonSchema;
-	authenticated?: boolean;
+	readonly response?: TsonSchema;
+	readonly authenticated?: boolean;
+	readonly throws?: readonly number[];
 };
 
 export type StreamConfig = {
-	tweakRequest?: TsonSchema;
-	tweakResponse?: TsonSchema;
+	readonly tweakRequest?: TsonSchema;
+	readonly tweakResponse?: TsonSchema;
 };
 
 type GetHandlerModel = TsonHandlerBase & {
-	method: 'GET';
+	readonly method: 'GET';
 };
 
 type PostHandlerModel = TsonHandlerBase & {
-	method: 'POST';
-	request?: TsonSchema;
+	readonly method: 'POST';
+	readonly request?: TsonSchema;
 };
 
 type PutHandlerModel = TsonHandlerBase & {
-	method: 'PUT';
-	request?: TsonSchema;
+	readonly method: 'PUT';
+	readonly request?: TsonSchema;
 };
 
 type DeleteHandlerModel = TsonHandlerBase & {
-	method: 'DELETE';
-	request?: TsonSchema;
+	readonly method: 'DELETE';
+	readonly request?: TsonSchema;
 };
 
 type PatchHandlerModel = TsonHandlerBase & {
-	method: 'PATCH';
-	request?: TsonSchema;
+	readonly method: 'PATCH';
+	readonly request?: TsonSchema;
 };
 
 type OptionsHandlerModel = TsonHandlerBase & {
-	method: 'OPTIONS';
+	readonly method: 'OPTIONS';
 };
 
 type HeadHandlerModel = TsonHandlerBase & {
-	method: 'HEAD';
+	readonly method: 'HEAD';
 };
 
 type VagueHandlerModel = TsonHandlerBase & {
-	request?: TsonSchema;
+	readonly request?: TsonSchema;
 };
 
 export type TsonHttpHandlerModel = Readonly<
@@ -58,7 +59,7 @@ export type TsonHttpHandlerModel = Readonly<
 >;
 
 export type TsonStreamHandlerModel = Readonly<
-	TsonHandlerBase & { stream: true | StreamConfig }
+	TsonHandlerBase & { readonly stream: true | StreamConfig }
 >;
 
 export type TsonHandlerModel = TsonHttpHandlerModel | TsonStreamHandlerModel;

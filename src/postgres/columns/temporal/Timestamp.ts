@@ -1,8 +1,5 @@
-import { PostgresColumnBase } from '../../PostgresColumnBase';
+import { TimestampBase } from './TimestampBase';
 
-export type TimestampColumnModel = PostgresColumnBase & {
-	type: 'timestamp' | 'timestamptz';
-	timezone?: boolean;
-	precision?: number;
-	default?: Date | { sql: string };
+export type Timestamp = TimestampBase & {
+	readonly type: 'timestamp';
 };

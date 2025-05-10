@@ -1,10 +1,10 @@
 import { PostgresColumnModel } from '.';
-import { BigIntTsonSchema, TsonSchema } from '../tson';
+import { BigIntTsonSchema, TsonSchema, stringifyBON } from '../tson';
 
 export const postgresColumnToTson = <S extends PostgresColumnModel>(
 	s: S,
 ): TsonSchema => {
-	if (!s.type) throw new Error(`erm ${JSON.stringify(s)}`);
+	if (!s.type) throw new Error(`erm ${stringifyBON(s)}`);
 	switch (s.type) {
 		case 'enum':
 			return s;
@@ -59,6 +59,6 @@ export const postgresColumnToTson = <S extends PostgresColumnModel>(
 			return s.schema ?? { type: 'object', properties: {}, required: [] };
 		default:
 			console.log('Invalid model', s);
-			throw new Error(`Unknown type: ${s.type} on ${JSON.stringify(s)}`);
+			throw new Error(`Unknown type: ${s.type} on ${stringifyBON(s)}`);
 	}
 };

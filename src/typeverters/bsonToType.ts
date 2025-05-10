@@ -41,7 +41,7 @@ export const bsonToType = <S extends BsonSchemaOrPrimitive>(s: S): string => {
 					throw new Error(`Unknown bsonType: ${s.bsonType}`);
 			}
 		}
-		throw new Error(`Unknown object schema: ${s}`);
+		throw new Error(`Unknown bson object schema: ${s}`);
 	}
-	throw new Error(`Unknown schema type ${typeof s}: ${s}`);
+	throw new Error(`Unknown bson schema type ${typeof s}: ${s}`);
 };
