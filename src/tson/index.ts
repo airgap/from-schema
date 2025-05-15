@@ -16,6 +16,7 @@ export * from './OnlyRequiredTson';
 export * from './PrimitiveOrFromTsonSchema';
 export * from './RequiredPropOfTson';
 export * from './stringifyBON';
+export * from './parseBON';
 export * from './StringTsonSchema';
 export * from './UnionTsonSchema';
 export * from './NumberTsonSchema';
