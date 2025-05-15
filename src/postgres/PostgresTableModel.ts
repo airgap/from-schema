@@ -21,4 +21,5 @@ export type PostgresTableModel<S extends PostgresRecordModel> = {
 		Record<keyof S['properties'], { readonly [key: string]: string }>
 	>;
 	readonly triggers?: PostgresTriggerModel[];
+	readonly unique?: keyof S['properties'] | readonly (keyof S['properties'])[];
 };
