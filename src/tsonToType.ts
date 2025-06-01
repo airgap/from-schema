@@ -22,9 +22,11 @@ export const tsonToType = <S extends TsonSchemaOrPrimitive>(s: S): string => {
 				case 'array':
 					return `Array<${tsonToType(s.items as TsonSchemaOrPrimitive)}>`;
 				case 'object': {
-					const properties = Object.entries(
-						s.properties as Record<string, TsonSchemaOrPrimitive>,
-					);
+					const properties = s.properties
+						? Object.entries(
+								s.properties as Record<string, TsonSchemaOrPrimitive>,
+							)
+						: [];
 					const required = 'required' in s ? s.required : [];
 					return `{ ${properties.map(([k, v]) => `${k}${!required.includes(k) ? '?' : ''}: ${tsonToType(v)}`).join('; ')} }`;
 				}

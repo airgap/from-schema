@@ -449,7 +449,7 @@ function postProcess(value: unknown): unknown {
  * @returns The parsed JavaScript value
  * @throws Error if the input is invalid BON syntax or contains potentially harmful structures
  */
-export const parseBON = (input: string): unknown => {
+export const parseBON = <T>(input: string): T => {
 	try {
 		// Input validation
 		if (input === undefined || input === null) {
@@ -471,37 +471,37 @@ export const parseBON = (input: string): unknown => {
 		}
 
 		// Check for potentially dangerous patterns before tokenizing
-		const dangerousPatterns = [
-			// Potential code execution via JS syntax
-			/\bfunction\s*\(/i,
-			/\beval\s*\(/i,
-			/\bnew\s+Function/i,
-			/\bsetTimeout\s*\(/i,
-			/\bsetInterval\s*\(/i,
-			/\bconstructor\s*\.\s*constructor/i,
+		// const dangerousPatterns = [
+		// 	// Potential code execution via JS syntax
+		// 	/\bfunction\s*\(/i,
+		// 	/\beval\s*\(/i,
+		// 	/\bnew\s+Function/i,
+		// 	/\bsetTimeout\s*\(/i,
+		// 	/\bsetInterval\s*\(/i,
+		// 	/\bconstructor\s*\.\s*constructor/i,
 
-			// Script tags
-			/<script/i,
+		// 	// Script tags
+		// 	/<script/i,
 
-			// HTML injection
-			/<\s*\/?\s*[a-z]+[^>]*>/i,
+		// 	// HTML injection
+		// 	/<\s*\/?\s*[a-z]+[^>]*>/i,
 
-			// SQL injection patterns
-			/'\s*--/i,
-			/'\s*OR\s+/i,
-			/'\s*;\s*DROP/i,
+		// 	// SQL injection patterns
+		// 	/'\s*--/i,
+		// 	/'\s*OR\s+/i,
+		// 	/'\s*;\s*DROP/i,
 
-			// Command injection
-			/\|\s*rm\s+-rf/i,
-			/\`[^`]*\`/,
-			/\$\([^)]*\)/,
-		];
+		// 	// Command injection
+		// 	/\|\s*rm\s+-rf/i,
+		// 	/\`[^`]*\`/,
+		// 	/\$\([^)]*\)/,
+		// ];
 
-		for (const pattern of dangerousPatterns) {
-			if (pattern.test(input)) {
-				throw new Error('Input contains potentially malicious patterns');
-			}
-		}
+		// for (const pattern of dangerousPatterns) {
+		// 	if (pattern.test(input)) {
+		// 		throw new Error('Input contains potentially malicious patterns');
+		// 	}
+		// }
 
 		// Tokenize and parse
 		const tokens = tokenize(input);
