@@ -1,12 +1,14 @@
 import { buildOneOfValidator } from './buildOneOfValidator';
 import { OneOfTsonSchema } from '../tson/OneOfTsonSchema';
+import { compileValidator } from './testUtils';
 
 describe('buildOneOfValidator', () => {
 	describe('basic oneOf validation', () => {
 		const schema: OneOfTsonSchema = {
 			oneOf: [{ type: 'string' }, { type: 'number' }],
 		};
-		const validator = buildOneOfValidator(schema);
+		const protoValidator = buildOneOfValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts values matching any schema', () => {
 			expect(validator.isValid('hello')).toBe(true);
@@ -47,7 +49,8 @@ describe('buildOneOfValidator', () => {
 				},
 			],
 		};
-		const validator = buildOneOfValidator(schema);
+		const protoValidator = buildOneOfValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts values matching first schema', () => {
 			expect(
@@ -88,7 +91,8 @@ describe('buildOneOfValidator', () => {
 		const schema: OneOfTsonSchema = {
 			oneOf: [{ type: 'string' }, { type: 'number' }],
 		};
-		const validator = buildOneOfValidator(schema);
+		const protoValidator = buildOneOfValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('throws for invalid values', () => {
 			expect(() => validator.validateOrThrow(true)).toThrow(
@@ -120,7 +124,8 @@ describe('buildOneOfValidator', () => {
 				},
 			],
 		};
-		const validator = buildOneOfValidator(schema);
+		const protoValidator = buildOneOfValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('returns empty array for valid values', () => {
 			expect(validator.validate({ name: 'John' })).toEqual([]);

@@ -14,24 +14,53 @@ export function buildBigintValidator(
 
 		// Fast throwing version
 		const throwingBody = `
-			if (typeof ${key} !== "bigint") {
+			let bigintValue = ${key};
+			if (typeof ${key} === "string") {
+				try {
+					bigintValue = BigInt(${key});
+				} catch {
+					throw new Error("Value must be a bigint");
+				}
+			} else if (typeof ${key} !== "bigint") {
 				throw new Error("Value must be a bigint");
 			}
-			if (${key} !== ${constValue}) throw new Error("Expected ${constValue}, got " + ${key});
+			if (bigintValue !== ${constValue}n) throw new Error("Expected ${constValue}, got " + bigintValue);
 		`;
 
 		// Fast single-error version
 		const quickBody = `
-			if (typeof ${key} !== "bigint") {
+			let bigintValue = ${key};
+			if (typeof ${key} === "string") {
+				try {
+					bigintValue = BigInt(${key});
+				} catch {
+					return "Value must be a bigint";
+				}
+			} else if (typeof ${key} !== "bigint") {
 				return "Value must be a bigint";
 			}
-			if (${key} !== ${constValue}) return "Expected ${constValue}, got " + ${key};
+			if (bigintValue !== ${constValue}n) return "Expected ${constValue}, got " + bigintValue;
 		`;
 
 		// Collecting version
 		const collectingBody = `
-			if (typeof ${key} !== "bigint") {
+			let bigintValue = ${key};
+			let hasError = false;
+			
+			if (typeof ${key} === "string") {
+				try {
+					bigintValue = BigInt(${key});
+				} catch {
+					allErrors.push("Value must be a bigint");
+					hasError = true;
+				}
+			} else if (typeof ${key} !== "bigint") {
 				allErrors.push("Value must be a bigint");
+				hasError = true;
+			}
+			
+			if (!hasError && bigintValue !== ${constValue}n) {
+				allErrors.push("Expected ${constValue}, got " + bigintValue);
 			}
 		`;
 
@@ -48,20 +77,27 @@ export function buildBigintValidator(
 	if (schema.minimum !== undefined) {
 		const minVal = schema.minimum.toString();
 		checks.push(
-			`if (${key} < ${minVal}) return "Value must be greater than or equal to ${minVal}";`,
+			`if (bigintValue < ${minVal}n) return "Value must be greater than or equal to ${minVal}";`,
 		);
 	}
 
 	if (schema.maximum !== undefined) {
 		const maxVal = schema.maximum.toString();
 		checks.push(
-			`if (${key} > BigInt("${maxVal}")) return "Value must be less than or equal to ${maxVal}";`,
+			`if (bigintValue > ${maxVal}n) return "Value must be less than or equal to ${maxVal}";`,
 		);
 	}
 
 	// Base validation logic for bigint type checking
 	const typeCheck = `
-		if (typeof ${key} !== "bigint") {
+		let bigintValue = ${key};
+		if (typeof ${key} === "string") {
+			try {
+				bigintValue = BigInt(${key});
+			} catch {
+				return "Value must be a bigint";
+			}
+		} else if (typeof ${key} !== "bigint") {
 			return "Value must be a bigint";
 		}
 	`;
@@ -81,8 +117,32 @@ export function buildBigintValidator(
 
 	// Collecting version
 	const collectingBody = `
-			${typeCheck.replace(/return "(.*?)";/g, 'allErrors.push("$1");')}
-			${checks.map((check) => check.replace(/return "(.*?)";/g, 'allErrors.push("$1");')).join('\n			')}
+		let bigintValue = ${key};
+		let hasError = false;
+		
+		if (typeof ${key} === "string") {
+			try {
+				bigintValue = BigInt(${key});
+			} catch {
+				allErrors.push("Value must be a bigint");
+				hasError = true;
+			}
+		} else if (typeof ${key} !== "bigint") {
+			allErrors.push("Value must be a bigint");
+			hasError = true;
+		}
+		
+		if (!hasError) {
+			${checks
+				.map((check) => {
+					const modifiedCheck = check.replace(
+						/return "(.*?)";/,
+						'allErrors.push("$1");',
+					);
+					return modifiedCheck;
+				})
+				.join(' else ')}
+		}
 	`;
 
 	return {

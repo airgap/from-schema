@@ -114,14 +114,15 @@ export function buildStringValidator(
 
 	// Collecting version
 	const collectingBody = `
-			if (typeof ${key} !== "string") allErrors.push("Value must be a string");
-			${checks.reduce(
-				(acc, check) =>
-					acc +
-					' else ' +
-					check.replace('return', 'allErrors.push(').replace(/;$/, ');'),
-				'',
-			)}
+			if (typeof ${key} !== "string") {
+				allErrors.push("Value must be a string");
+			} else {
+				${checks
+					.map((check) =>
+						check.replace('return', 'allErrors.push(').replace(/;$/, ');'),
+					)
+					.join('\n				')}
+			}
 	`;
 
 	return {

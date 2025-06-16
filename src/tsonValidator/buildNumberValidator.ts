@@ -15,26 +15,48 @@ export function buildNumberValidator(
 
 		// Fast throwing version
 		const throwingBody = `
-			if (typeof ${key} !== "number") 
+			let numValue = ${key};
+			if (typeof ${key} === "string") {
+				numValue = Number(${key});
+				if (isNaN(numValue)) {
+					throw new Error("Value must be a valid number");
+				}
+			} else if (typeof ${key} !== "number") {
 				throw new Error("Value must be a number");
-			if (${key} !== ${constValue}) throw new Error("Expected ${constValue}, got " + ${key});
+			}
+			if (numValue !== ${constValue}) throw new Error("Expected ${constValue}, got " + numValue);
 			
 		`;
 
 		// Fast single-error version
 		const quickBody = `
-			if (typeof ${key} !== "number") {
+			let numValue = ${key};
+			if (typeof ${key} === "string") {
+				numValue = Number(${key});
+				if (isNaN(numValue)) {
+					return "Value must be a valid number";
+				}
+			} else if (typeof ${key} !== "number") {
 				return "Value must be a number";
 			}
-			if (${key} !== ${constValue}) return "Expected ${constValue}, got " + ${key};
+			if (numValue !== ${constValue}) return "Expected ${constValue}, got " + numValue;
 		`;
 
 		// Collecting version
 		const collectingBody = `
-				if (typeof ${key} !== "number") {
-						allErrors.push("Value must be a number");
+			let numValue = ${key};
+			if (typeof ${key} === "string") {
+				numValue = Number(${key});
+				if (isNaN(numValue)) {
+					allErrors.push("Value must be a valid number");
+				} else if (numValue !== ${constValue}) {
+					allErrors.push("Expected ${constValue}, got " + numValue);
 				}
-				else if (${key} !== ${constValue}) allErrors.push("Expected ${constValue}, got " + ${key});
+			} else if (typeof ${key} !== "number") {
+				allErrors.push("Value must be a number");
+			} else if (numValue !== ${constValue}) {
+				allErrors.push("Expected ${constValue}, got " + numValue);
+			}
 				
 		`;
 
@@ -50,24 +72,30 @@ export function buildNumberValidator(
 
 	if (schema.minimum !== undefined) {
 		checks.push(
-			`if (${key} < ${schema.minimum}) return "Value must be greater than or equal to ${schema.minimum}";`,
+			`if (numValue < ${schema.minimum}) return "Value must be greater than or equal to ${schema.minimum}";`,
 		);
 	}
 
 	if (schema.maximum !== undefined) {
 		checks.push(
-			`if (${key} > ${schema.maximum}) return "Value must be less than or equal to ${schema.maximum}";`,
+			`if (numValue > ${schema.maximum}) return "Value must be less than or equal to ${schema.maximum}";`,
 		);
 	}
 
 	const typeCheck = `
-		if (typeof ${key} !== "number") {
-				return "Value must be a number";
+		let numValue = ${key};
+		if (typeof ${key} === "string") {
+			numValue = Number(${key});
+			if (isNaN(numValue)) {
+				return "Value must be a valid number";
+			}
+		} else if (typeof ${key} !== "number") {
+			return "Value must be a number";
 		}
 		
 		${
 			schema.type === 'integer'
-				? `if (!Number.isInteger(${key})) {
+				? `if (!Number.isInteger(numValue)) {
 				return "Value must be an integer";
 			}`
 				: ''
@@ -89,18 +117,50 @@ export function buildNumberValidator(
 
 	// Collecting version
 	const collectingBody = `
-		if (typeof ${key} !== "number") {
+		let numValue = ${key};
+		if (typeof ${key} === "string") {
+			numValue = Number(${key});
+			if (isNaN(numValue)) {
+				allErrors.push("Value must be a valid number");
+			} else {
+				${
+					schema.type === 'integer'
+						? `if (!Number.isInteger(numValue)) {
+						allErrors.push("Value must be an integer");
+					} else {`
+						: ''
+				}
+				${checks
+					.map((check) => {
+						const modifiedCheck = check.replace(
+							/return "(.*?)";/,
+							'allErrors.push("$1");',
+						);
+						return modifiedCheck;
+					})
+					.join(' else ')}
+				${schema.type === 'integer' ? '}' : ''}
+			}
+		} else if (typeof ${key} !== "number") {
 			allErrors.push("Value must be a number");
-		}
-		
+		} else {
 			${
 				schema.type === 'integer'
-					? `else if (!Number.isInteger(${key})) {
+					? `if (!Number.isInteger(${key})) {
 					allErrors.push("Value must be an integer");
-				}`
+				} else {`
 					: ''
 			}
-			${checks.reduce((acc, check) => acc + ' else ' + check.replace(/return "(.*?)";/, 'allErrors.push("$1");').replace(/;$/, ';'), '')}
+			${checks
+				.map((check) => {
+					const modifiedCheck = check
+						.replace(/numValue/g, key)
+						.replace(/return "(.*?)";/, 'allErrors.push("$1");');
+					return modifiedCheck;
+				})
+				.join(' else ')}
+			${schema.type === 'integer' ? '}' : ''}
+		}
 	`;
 
 	return {

@@ -15,20 +15,56 @@ export function buildObjectValidator(
 
 	// Build validators for each property
 	for (const [k, propSchema] of Object.entries(schema.properties || {})) {
-		propertyValidators[k] = buildValidator(`${key}["${k}"]`, propSchema);
-		throwValidators += `${propertyValidators[k].validateOrThrow};`;
-		isValidValidators += `${propertyValidators[k].isValid};`;
-		collectingValidators += `${propertyValidators[k].validate};`;
+		const propKey = `${key}["${k}"]`;
+		propertyValidators[k] = buildValidator(propKey, propSchema);
+
+		// For throwing version
+		throwValidators += `
+			if ("${k}" in ${key}) {
+				try {
+					${propertyValidators[k].validateOrThrow}
+				} catch (error) {
+					throw new Error(\`Property "${k}": \${error.message}\`);
+				}
+			}
+		`;
+
+		// For isValid version
+		isValidValidators += `
+			if ("${k}" in ${key}) {
+				const propResult = (() => {
+					${propertyValidators[k].isValid}
+					return true;
+				})();
+				if (propResult !== true) {
+					return \`Property "${k}": \${propResult}\`;
+				}
+			}
+		`;
+
+		// For collecting version
+		collectingValidators += `
+			if ("${k}" in ${key}) {
+				const propErrors = [];
+				{
+					let allErrors = propErrors;
+					${propertyValidators[k].validate}
+				}
+				for (const error of propErrors) {
+					allErrors.push(\`Property "${k}": \${error}\`);
+				}
+			}
+		`;
 	}
 	const requiredProps = 'required' in schema ? schema.required : [];
 
 	return {
 		validateOrThrow: `
-			if (!isObject(${key})) {
+			if (typeof ${key} !== 'object' || ${key} === null || Array.isArray(${key})) {
 				throw new Error('Value must be an object');
 			}
 
-			for (const prop of ${JSON.stringify(requiredProps)} as const) {
+			for (const prop of ${JSON.stringify(requiredProps)}) {
 				if (!(prop in ${key})) {
 					throw new Error(\`Missing required property: \${prop}\`);
 				}
@@ -38,11 +74,11 @@ export function buildObjectValidator(
 		`,
 
 		isValid: `
-			if (!isObject(${key})) {
+			if (typeof ${key} !== 'object' || ${key} === null || Array.isArray(${key})) {
 				return 'Value must be an object';
 			}
 
-			for (const prop of ${JSON.stringify(requiredProps)} as const) {
+			for (const prop of ${JSON.stringify(requiredProps)}) {
 				if (!(prop in ${key})) {
 					return \`Missing required property: \${prop}\`;
 				}
@@ -51,17 +87,16 @@ export function buildObjectValidator(
 			${isValidValidators}`,
 
 		validate: `
-
-			if (!isObject(${key})) {
+			if (typeof ${key} !== 'object' || ${key} === null || Array.isArray(${key})) {
 				allErrors.push('Value must be an object');
-			} else
-{
-			for (const prop of ${JSON.stringify(requiredProps)} as const) {
-				if (!(prop in ${key})) {
-					allErrors.push(\`Missing required property: \${prop}\`);
+			} else {
+				for (const prop of ${JSON.stringify(requiredProps)}) {
+					if (!(prop in ${key})) {
+						allErrors.push(\`Missing required property: \${prop}\`);
+					}
 				}
-			}
 
-			${collectingValidators}}`,
+				${collectingValidators}
+			}`,
 	};
 }

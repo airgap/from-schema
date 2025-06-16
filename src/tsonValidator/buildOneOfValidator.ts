@@ -53,16 +53,27 @@ export function buildOneOfValidator(
 	// Collecting version
 	const collectingBody = `
             let anyMatch_${b} = false;
-            let allErrors_${b}: string[] = [];
-            ${validators.reduce(
-							(agg, validator, index) => `${agg}
-                ${validator.validate};
-                if (allErrors_${b}.length === 0) {
-                    anyMatch_${b} = true;
-            }${index < validators.length ? ' else ' : ''}`,
-							'',
-						)}
-            allErrors.push(...allErrors_${b});
+            
+            ${validators
+							.map(
+								(validator, index) => `
+                {
+                    const tempErrors = [];
+                    {
+                        let allErrors = tempErrors;
+                        ${validator.validate}
+                    }
+                    if (tempErrors.length === 0) {
+                        anyMatch_${b} = true;
+                    }
+                }
+            `,
+							)
+							.join('')}
+            
+            if (!anyMatch_${b}) {
+                allErrors.push("${ERROR_MESSAGE}");
+            }
     `;
 
 	return {

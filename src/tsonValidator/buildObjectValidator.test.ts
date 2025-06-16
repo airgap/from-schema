@@ -1,5 +1,6 @@
 import { buildObjectValidator } from './buildObjectValidator';
 import { ObjectTsonSchema } from '../tson/ObjectTsonSchema';
+import { compileValidator } from './testUtils';
 
 describe('buildObjectValidator', () => {
 	describe('basic object validation', () => {
@@ -10,7 +11,8 @@ describe('buildObjectValidator', () => {
 				age: { type: 'number' },
 			},
 		};
-		const validator = buildObjectValidator(schema);
+		const protoValidator = buildObjectValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts valid objects', () => {
 			expect(validator.isValid({ name: 'John', age: 30 })).toBe(true);
@@ -43,7 +45,8 @@ describe('buildObjectValidator', () => {
 			},
 			required: ['name'],
 		};
-		const validator = buildObjectValidator(schema);
+		const protoValidator = buildObjectValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts objects with required properties', () => {
 			expect(validator.isValid({ name: 'John' })).toBe(true);
@@ -73,7 +76,8 @@ describe('buildObjectValidator', () => {
 			},
 			required: ['person'],
 		};
-		const validator = buildObjectValidator(schema);
+		const protoValidator = buildObjectValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts valid nested objects', () => {
 			expect(
@@ -106,7 +110,8 @@ describe('buildObjectValidator', () => {
 			},
 			required: ['name'],
 		};
-		const validator = buildObjectValidator(schema);
+		const protoValidator = buildObjectValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('throws for invalid objects', () => {
 			expect(() => validator.validateOrThrow(null)).toThrow(
@@ -134,7 +139,8 @@ describe('buildObjectValidator', () => {
 			},
 			required: ['name', 'age'],
 		};
-		const validator = buildObjectValidator(schema);
+		const protoValidator = buildObjectValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('returns empty array for valid objects', () => {
 			expect(validator.validate({ name: 'John', age: 30 })).toEqual([]);
@@ -168,7 +174,8 @@ describe('buildObjectValidator', () => {
 			},
 			required: ['id'],
 		};
-		const validator = buildObjectValidator(schema);
+		const protoValidator = buildObjectValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts valid bigint values', () => {
 			expect(validator.isValid({ id: BigInt(123) })).toBe(true);

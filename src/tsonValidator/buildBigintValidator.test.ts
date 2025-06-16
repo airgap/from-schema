@@ -1,5 +1,6 @@
 import { buildBigintValidator } from './buildBigintValidator';
 import { BigIntTsonSchema } from '../tson/BigIntTsonSchema';
+import { compileValidator } from './testUtils';
 
 describe('buildBigintValidator', () => {
 	describe('const validation', () => {
@@ -7,7 +8,8 @@ describe('buildBigintValidator', () => {
 			type: 'bigint',
 			const: BigInt(123),
 		};
-		const validator = buildBigintValidator(schema);
+		const protoValidator = buildBigintValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts exact const value', () => {
 			expect(validator.isValid(BigInt(123))).toBe(true);
@@ -38,9 +40,10 @@ describe('buildBigintValidator', () => {
 	});
 
 	test('validates bigint type', () => {
-		const validator = buildBigintValidator({
+		const protoValidator = buildBigintValidator('value', {
 			type: 'bigint',
 		});
+		const validator = compileValidator(protoValidator);
 
 		expect(validator.isValid(BigInt(123))).toBe(true);
 		expect(validator.isValid('123')).toBe(true);
@@ -50,10 +53,11 @@ describe('buildBigintValidator', () => {
 	});
 
 	test('validates minimum value', () => {
-		const validator = buildBigintValidator({
+		const protoValidator = buildBigintValidator('value', {
 			type: 'bigint',
 			minimum: BigInt(100),
 		});
+		const validator = compileValidator(protoValidator);
 
 		expect(validator.isValid(BigInt(100))).toBe(true);
 		expect(validator.isValid(BigInt(101))).toBe(true);
@@ -67,10 +71,11 @@ describe('buildBigintValidator', () => {
 	});
 
 	test('validates maximum value', () => {
-		const validator = buildBigintValidator({
+		const protoValidator = buildBigintValidator('value', {
 			type: 'bigint',
 			maximum: BigInt(100),
 		});
+		const validator = compileValidator(protoValidator);
 
 		expect(validator.isValid(BigInt(100))).toBe(true);
 		expect(validator.isValid(BigInt(99))).toBe(true);
@@ -84,11 +89,12 @@ describe('buildBigintValidator', () => {
 	});
 
 	test('validates range', () => {
-		const validator = buildBigintValidator({
+		const protoValidator = buildBigintValidator('value', {
 			type: 'bigint',
 			minimum: BigInt(100),
 			maximum: BigInt(200),
 		});
+		const validator = compileValidator(protoValidator);
 
 		expect(validator.isValid(BigInt(100))).toBe(true);
 		expect(validator.isValid(BigInt(150))).toBe(true);
@@ -102,11 +108,12 @@ describe('buildBigintValidator', () => {
 	});
 
 	test('collects all errors', () => {
-		const validator = buildBigintValidator({
+		const protoValidator = buildBigintValidator('value', {
 			type: 'bigint',
 			minimum: BigInt(100),
 			maximum: BigInt(200),
 		});
+		const validator = compileValidator(protoValidator);
 
 		expect(validator.validate('not a bigint')).toEqual([
 			'Value must be a bigint',
@@ -121,11 +128,12 @@ describe('buildBigintValidator', () => {
 	});
 
 	test('throws errors', () => {
-		const validator = buildBigintValidator({
+		const protoValidator = buildBigintValidator('value', {
 			type: 'bigint',
 			minimum: BigInt(100),
 			maximum: BigInt(200),
 		});
+		const validator = compileValidator(protoValidator);
 
 		expect(() => validator.validateOrThrow('not a bigint')).toThrow(
 			'Value must be a bigint',

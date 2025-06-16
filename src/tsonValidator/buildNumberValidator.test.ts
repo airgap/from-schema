@@ -1,10 +1,12 @@
 import { buildNumberValidator } from './buildNumberValidator';
 import { NumberTsonSchema } from '../tson/NumberTsonSchema';
+import { compileValidator } from './testUtils';
 
 describe('buildNumberValidator', () => {
 	describe('basic number validation', () => {
 		const schema: NumberTsonSchema = { type: 'number' };
-		const validator = buildNumberValidator(schema);
+		const protoValidator = buildNumberValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts valid numbers', () => {
 			expect(validator.isValid(42)).toBe(true);
@@ -27,7 +29,8 @@ describe('buildNumberValidator', () => {
 
 	describe('integer validation', () => {
 		const schema: NumberTsonSchema = { type: 'integer' };
-		const validator = buildNumberValidator(schema);
+		const protoValidator = buildNumberValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts valid integers', () => {
 			expect(validator.isValid(42)).toBe(true);
@@ -46,7 +49,8 @@ describe('buildNumberValidator', () => {
 			minimum: 0,
 			maximum: 100,
 		};
-		const validator = buildNumberValidator(schema);
+		const protoValidator = buildNumberValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts numbers within range', () => {
 			expect(validator.isValid(0)).toBe(true);
@@ -69,7 +73,8 @@ describe('buildNumberValidator', () => {
 			type: 'number',
 			minimum: 0,
 		};
-		const validator = buildNumberValidator(schema);
+		const protoValidator = buildNumberValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('throws error for invalid values', () => {
 			expect(() => validator.validateOrThrow(-1)).toThrow(
@@ -92,7 +97,8 @@ describe('buildNumberValidator', () => {
 			minimum: 0,
 			maximum: 10,
 		};
-		const validator = buildNumberValidator(schema);
+		const protoValidator = buildNumberValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('returns empty array for valid values', () => {
 			expect(validator.validate(5)).toEqual([]);

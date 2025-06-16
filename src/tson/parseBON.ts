@@ -495,6 +495,23 @@ export const parseBON = <T>(input: string): T => {
 		// 	/\|\s*rm\s+-rf/i,
 		// 	/\`[^`]*\`/,
 		// 	/\$\([^)]*\)/,
+
+		// 	// Prototype pollution attempts
+		// 	/__proto__/i,
+		// 	/\.prototype\./i,
+
+		// 	// Invalid JavaScript syntax that should not be parsed
+		// 	/\bvar\s+/i,        // variable declarations
+		// 	/\blet\s+/i,        // let declarations
+		// 	/\bconst\s+/i,      // const declarations
+		// 	/\bthrow\s+/i,      // throw statements
+		// 	/\b\d+\s*\+\s*\d+/i, // arithmetic expressions
+		// 	/0x[0-9a-f]+/i,     // hex numbers
+		// 	/0o[0-7]+/i,        // octal numbers
+		// 	/0b[01]+/i,         // binary numbers
+		// 	/\/\*.*?\*\//,      // comments
+		// 	/\{[^"]+:/,         // unquoted object keys
+		// 	/\[[^\]]*\]:/,      // array as key
 		// ];
 
 		// for (const pattern of dangerousPatterns) {
@@ -520,7 +537,7 @@ export const parseBON = <T>(input: string): T => {
 		}
 
 		// Post-process to handle dates
-		return postProcess(value);
+		return postProcess(value) as T;
 	} catch (error) {
 		if (error instanceof ParseError) {
 			throw new Error(`BON parse error: ${error.message}`);

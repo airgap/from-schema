@@ -34,8 +34,9 @@ export function buildBooleanValidator(
 
 	return {
 		validateOrThrow: `
-		${hasDefault ? `if (typeof ${key} === 'undefined') {} else` : ''}
+		${hasDefault ? `if (typeof ${key} === 'undefined') return ${JSON.stringify(defaultValue)};` : ''}
 		if(typeof ${key} !== 'boolean') throw new Error("Expected boolean, got " + typeof ${key});
+		return ${key};
 		`,
 
 		isValid: `

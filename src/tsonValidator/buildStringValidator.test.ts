@@ -1,5 +1,6 @@
 import { StringTsonSchema } from '../tson/StringTsonSchema';
 import { buildStringValidator } from './buildStringValidator';
+import { compileValidator } from './testUtils';
 
 describe('buildStringValidator', () => {
 	describe('const validation', () => {
@@ -7,7 +8,8 @@ describe('buildStringValidator', () => {
 			type: 'string',
 			const: 'hello',
 		};
-		const validator = buildStringValidator(schema);
+		const protoValidator = buildStringValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts exact const value', () => {
 			expect(validator.isValid('hello')).toBe(true);
@@ -48,10 +50,11 @@ describe('buildStringValidator', () => {
 		] as const;
 
 		test.each(formatTests)('validates %s format', (format, valid, invalid) => {
-			const validator = buildStringValidator({
+			const protoValidator = buildStringValidator('value', {
 				type: 'string',
 				format: format,
 			});
+			const validator = compileValidator(protoValidator);
 
 			expect(validator.isValid(valid)).toBe(true);
 			expect(validator.isValid(invalid)).toBe(
@@ -66,7 +69,8 @@ describe('buildStringValidator', () => {
 			minLength: 2,
 			maxLength: 5,
 		};
-		const validator = buildStringValidator(schema);
+		const protoValidator = buildStringValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts strings within length constraints', () => {
 			expect(validator.isValid('ab')).toBe(true);
@@ -92,7 +96,8 @@ describe('buildStringValidator', () => {
 			type: 'string',
 			pattern: '^[A-Z][a-z]+$',
 		};
-		const validator = buildStringValidator(schema);
+		const protoValidator = buildStringValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('accepts strings matching pattern', () => {
 			expect(validator.isValid('Hello')).toBe(true);
@@ -116,7 +121,8 @@ describe('buildStringValidator', () => {
 			maxLength: 10,
 			pattern: '^[A-Z][a-z]+$',
 		};
-		const validator = buildStringValidator(schema);
+		const protoValidator = buildStringValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('collects all validation errors', () => {
 			expect(validator.validate('hi')).toEqual([

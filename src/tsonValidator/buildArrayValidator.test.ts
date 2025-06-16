@@ -1,5 +1,6 @@
 import { buildArrayValidator } from './buildArrayValidator';
 import { ArrayTsonSchema } from '../tson/ArrayTsonSchema';
+import { compileValidator } from './testUtils';
 
 describe('buildArrayValidator', () => {
 	describe('basic array validation', () => {
@@ -7,7 +8,8 @@ describe('buildArrayValidator', () => {
 			type: 'array',
 			items: { type: 'number' },
 		};
-		const validator = buildArrayValidator(schema);
+		const protoValidator = buildArrayValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('validates valid arrays', () => {
 			expect(validator.isValid([])).toBe(true);
@@ -55,7 +57,8 @@ describe('buildArrayValidator', () => {
 			minLength: 2,
 			maxLength: 4,
 		};
-		const validator = buildArrayValidator(schema);
+		const protoValidator = buildArrayValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('validates arrays within length constraints', () => {
 			expect(validator.isValid([1, 2])).toBe(true);
@@ -104,7 +107,8 @@ describe('buildArrayValidator', () => {
 				items: { type: 'number' },
 			},
 		};
-		const validator = buildArrayValidator(schema);
+		const protoValidator = buildArrayValidator('value', schema);
+		const validator = compileValidator(protoValidator);
 
 		test('validates nested arrays', () => {
 			expect(validator.isValid([])).toBe(true);

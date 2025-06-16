@@ -39,8 +39,15 @@ export function buildArrayValidator(
 					: ''
 			}
 			for (let i = 0; i < ${key}.length; i++) {
-			const ${itemKey} = ${key}[i];
-			${itemValidator.validate}
+				const ${itemKey} = ${key}[i];
+				const itemErrors = [];
+				{
+					let allErrors = itemErrors;
+					${itemValidator.validate}
+				}
+				for (const error of itemErrors) {
+					allErrors.push(\`Invalid item at index \${i}: \${error}\`);
+				}
 			}
 		}
 	`;
@@ -73,8 +80,12 @@ export function buildArrayValidator(
 			}
 
 			for (let i = 0; i < ${key}.length; i++) {
-			const ${itemKey} = ${key}[i];
-				${itemValidator.validateOrThrow}
+				const ${itemKey} = ${key}[i];
+				try {
+					${itemValidator.validateOrThrow}
+				} catch (error) {
+					throw new Error(\`Invalid item at index \${i}: \${error.message}\`);
+				}
 			}
 	`;
 
@@ -107,7 +118,13 @@ export function buildArrayValidator(
 
 			for (let i = 0; i < ${key}.length; i++) {
 				const ${itemKey} = ${key}[i];
-				${itemValidator.isValid}
+				const itemResult = (() => {
+					${itemValidator.isValid}
+					return true;
+				})();
+				if (itemResult !== true) {
+					return \`Invalid item at index \${i}: \${itemResult}\`;
+				}
 			}
 	`;
 
