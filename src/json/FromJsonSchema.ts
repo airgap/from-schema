@@ -13,7 +13,6 @@ import {
 } from './MapJsonSchema';
 import { UnionJsonSchema } from './UnionJsonSchema';
 import { DateJsonSchema } from './DateJsonSchema';
-import type { ObjectId } from 'mongodb';
 import {
 	ExclusiveJsonSchema,
 	ExclusiveJsonSchemaOf,
