@@ -8,7 +8,12 @@ type P<S extends PostgresRecordModel> = keyof S['properties'];
 type IndexesOf<S extends PostgresRecordModel> = readonly (
 	| P<S>
 	| P<S>[]
-	| { columns: P<S> | readonly P<S>[]; name?: string }
+	| {
+			columns: P<S> | readonly P<S>[];
+			name?: string;
+			order?: 'asc' | 'desc';
+			nulls?: 'first' | 'last';
+	  }
 )[];
 export type PostgresTableModel<S extends PostgresRecordModel> = {
 	readonly schema: S;
