@@ -4,15 +4,27 @@ import {
 	PostgresRecordModel,
 } from './PostgresRecordModel';
 import { PostgresTriggerModel } from './PostgresTriggerModel';
-type P<S extends PostgresRecordModel> = keyof S['properties'];
-type IndexesOf<S extends PostgresRecordModel> = readonly (
-	| P<S>
-	| P<S>[]
+export type PropKeyOf<S extends PostgresRecordModel> = keyof S['properties'] &
+	string;
+export type Nulls =
+	| ''
+	| ' NULLS FIRST'
+	| ' NULLS LAST'
+	| ' nulls first'
+	| ' nulls last';
+export type Order = '' | ' ASC' | ' DESC' | ' asc' | ' desc';
+export type Mods = `${Nulls}${Order}` | `${Order}${Nulls}`;
+export type IndexColumn<S extends PostgresRecordModel> =
+	| PropKeyOf<S>
+	| `${PropKeyOf<S>}${Mods}`;
+export type Columns<S extends PostgresRecordModel> =
+	| IndexColumn<S>
+	| readonly IndexColumn<S>[];
+export type IndexesOf<S extends PostgresRecordModel> = readonly (
+	| Columns<S>
 	| {
-			columns: P<S> | readonly P<S>[];
+			columns: Columns<S>;
 			name?: string;
-			order?: 'asc' | 'desc';
-			nulls?: 'first' | 'last';
 	  }
 )[];
 export type PostgresTableModel<S extends PostgresRecordModel> = {
@@ -25,6 +37,6 @@ export type PostgresTableModel<S extends PostgresRecordModel> = {
 	readonly foreignKeys?: Partial<
 		Record<keyof S['properties'], { readonly [key: string]: string }>
 	>;
-	readonly triggers?: PostgresTriggerModel[];
+	readonly triggers?: readonly PostgresTriggerModel[];
 	readonly unique?: keyof S['properties'] | readonly (keyof S['properties'])[];
 };
