@@ -14,6 +14,92 @@ export type TsonHandlerBase = {
 	readonly response?: TsonSchema;
 	readonly authenticated?: boolean;
 	readonly throws?: readonly number[];
+	readonly path?: string;
+
+	// Documentation fields
+	/**
+	 * Human-friendly title for the endpoint
+	 * @example "Accept Friend Request"
+	 */
+	readonly title?: string;
+
+	/**
+	 * Detailed description of what this endpoint does
+	 */
+	readonly description?: string;
+
+	/**
+	 * Category/group this endpoint belongs to for organizing documentation
+	 * @example "Friendship", "Posts", "Authentication"
+	 */
+	readonly category?: string;
+
+	/**
+	 * Tags for filtering and searching
+	 * @example ["social", "friends", "relationships"]
+	 */
+	readonly tags?: readonly string[];
+
+	/**
+	 * Example request/response pairs with explanations
+	 */
+	readonly examples?: readonly {
+		readonly title: string;
+		readonly description?: string;
+		readonly request?: unknown;
+		readonly response?: unknown;
+		readonly status?: number;
+	}[];
+
+	/**
+	 * Additional notes, warnings, or important information
+	 */
+	readonly notes?: readonly string[];
+
+	/**
+	 * Detailed error documentation
+	 */
+	readonly errors?: readonly {
+		readonly code: number;
+		readonly title: string;
+		readonly description: string;
+		readonly example?: unknown;
+		readonly resolution?: string;
+	}[];
+
+	/**
+	 * Links to related endpoints
+	 */
+	readonly relatedEndpoints?: readonly string[];
+
+	/**
+	 * Version when this endpoint was added
+	 * @example "1.0.0"
+	 */
+	readonly since?: string;
+
+	/**
+	 * If deprecated, when and what to use instead
+	 */
+	readonly deprecated?: {
+		readonly since: string;
+		readonly useInstead?: string;
+		readonly reason?: string;
+	};
+
+	/**
+	 * Rate limiting information
+	 */
+	readonly rateLimit?: {
+		readonly requests: number;
+		readonly period: string;
+		readonly scope?: 'user' | 'ip' | 'global';
+	};
+
+	/**
+	 * Required permissions or roles
+	 */
+	readonly requiredPermissions?: readonly string[];
 } & (Unauthed | Authed);
 
 export type StreamConfig = {

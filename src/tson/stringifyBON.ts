@@ -89,7 +89,7 @@ export const stringifyBON = (
 			}
 
 			if (isValidDate(value)) {
-				return value.toISOString();
+				return `new Date("${value.toISOString()}")`;
 			}
 
 			// Special handling for Error objects
