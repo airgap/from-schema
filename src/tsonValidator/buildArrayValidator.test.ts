@@ -54,8 +54,8 @@ describe('buildArrayValidator', () => {
 		const schema: ArrayTsonSchema = {
 			type: 'array',
 			items: { type: 'number' },
-			minLength: 2,
-			maxLength: 4,
+			minItems: 2,
+			maxItems: 4,
 		};
 		const protoValidator = buildArrayValidator('value', schema);
 		const validator = compileValidator(protoValidator);

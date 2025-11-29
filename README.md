@@ -123,8 +123,9 @@ Defined in `ArraySchema.ts`.
 export type ArraySchema = SchemaBase & {
 	readonly type: 'array';
 	readonly items: SchemaOrPrimitive;
-	readonly maxLength?: number;
-	readonly minLength?: number;
+	readonly maxItems?: number;
+	readonly minItems?: number;
+	readonly uniqueItems?: boolean;
 };
 ```
 
@@ -132,8 +133,9 @@ Represents an array schema. It extends the `SchemaBase` and has the following pr
 
 - `type`: Must be `'array'`.
 - `items`: The schema or primitive type for the array elements.
-- `maxLength` (optional): The maximum length of the array.
-- `minLength` (optional): The minimum length of the array.
+- `maxItems` (optional): The maximum length of the array.
+- `minItems` (optional): The minimum length of the array.
+- `uniqueItems` (optional): Whether the array must contain unique items.
 
 ### BooleanSchema
 
@@ -531,8 +533,8 @@ const myArraySchema: ArraySchema = {
 	items: {
 		type: 'string',
 	},
-	maxLength: 10,
-	minLength: 1,
+	maxItems: 10,
+	minItems: 1,
 };
 ```
 
