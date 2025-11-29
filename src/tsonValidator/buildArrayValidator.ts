@@ -21,19 +21,19 @@ export function buildArrayValidator(
 				allErrors.push('Value must be an array');
 			} else {
 			${
-				schema.minLength !== undefined
+				schema.minItems !== undefined
 					? `
-			if (${key}.length < ${schema.minLength}) {
-				allErrors.push(\`Array length \${${key}.length} is less than minimum length ${schema.minLength}\`);
+			if (${key}.length < ${schema.minItems}) {
+				allErrors.push(\`Array length \${${key}.length} is less than minimum length ${schema.minItems}\`);
 			}
 			`
 					: ''
 			}
 			${
-				schema.maxLength !== undefined
+				schema.maxItems !== undefined
 					? `
-			if (${key}.length > ${schema.maxLength}) {
-				allErrors.push(\`Array length \${${key}.length} exceeds maximum length ${schema.maxLength}\`);
+			if (${key}.length > ${schema.maxItems}) {
+				allErrors.push(\`Array length \${${key}.length} exceeds maximum length ${schema.maxItems}\`);
 			}
 			`
 					: ''
@@ -60,20 +60,20 @@ export function buildArrayValidator(
 			}
 
 			${
-				schema.minLength !== undefined
+				schema.minItems !== undefined
 					? `
-			if (${key}.length < ${schema.minLength}) {
-				throw new Error(\`Array length \${${key}.length} is less than minimum length ${schema.minLength}\`);
+			if (${key}.length < ${schema.minItems}) {
+				throw new Error(\`Array length \${${key}.length} is less than minimum length ${schema.minItems}\`);
 			}
 			`
 					: ''
 			}
 
 			${
-				schema.maxLength !== undefined
+				schema.maxItems !== undefined
 					? `
-			if (${key}.length > ${schema.maxLength}) {
-				throw new Error(\`Array length \${${key}.length} exceeds maximum length ${schema.maxLength}\`);
+			if (${key}.length > ${schema.maxItems}) {
+				throw new Error(\`Array length \${${key}.length} exceeds maximum length ${schema.maxItems}\`);
 			}
 			`
 					: ''
@@ -97,20 +97,20 @@ export function buildArrayValidator(
 			}
 
 			${
-				schema.minLength !== undefined
+				schema.minItems !== undefined
 					? `
-			if (${key}.length < ${schema.minLength}) {
-				return \`Array length \${${key}.length} is less than minimum length ${schema.minLength}\`;
+			if (${key}.length < ${schema.minItems}) {
+				return \`Array length \${${key}.length} is less than minimum length ${schema.minItems}\`;
 			}
 			`
 					: ''
 			}
 
 			${
-				schema.maxLength !== undefined
+				schema.maxItems !== undefined
 					? `
-			if (${key}.length > ${schema.maxLength}) {
-				return \`Array length \${${key}.length} exceeds maximum length ${schema.maxLength}\`;
+			if (${key}.length > ${schema.maxItems}) {
+				return \`Array length \${${key}.length} exceeds maximum length ${schema.maxItems}\`;
 			}
 			`
 					: ''

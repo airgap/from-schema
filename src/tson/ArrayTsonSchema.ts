@@ -4,8 +4,9 @@ import { TsonSchemaOrPrimitive } from './TsonSchemaOrPrimitive';
 export type ArrayTsonSchema = SchemaBase & {
 	readonly type: 'array';
 	readonly items: TsonSchemaOrPrimitive;
-	readonly maxLength?: number;
-	readonly minLength?: number;
+	readonly maxItems?: number;
+	readonly minItems?: number;
+	readonly uniqueItems?: boolean;
 	readonly default?: unknown[];
 	readonly examples?: unknown[][];
 };
